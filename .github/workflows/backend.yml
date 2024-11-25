@@ -4,14 +4,22 @@ on:
   push:
     branches:
       - main
+      - test
+      - dev
   pull_request:
     branches:
       - main
+      - test
+      - dev
+    types: [opened, synchronize] 
 
 jobs:
-  build:
-    name: Build and Test
+  build-test:
+    name: Build and Test (Matrix Strategy)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: [build, test] 
 
     steps:
     - name: Checkout code
@@ -31,9 +39,33 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
 
-    - name: Build with Maven
-      run: mvn clean package -DskipTests
+    - name: Execute Maven command
+      run: |
+        if [ "${{ matrix.task }}" == "build" ]; then
+          mvn clean package -DskipTests;
+        elif [ "${{ matrix.task }}" == "test" ]; then
+          mvn test;
+        fi
 
-    - name: Run tests
-      run: mvn test
+  linter:
+    name: Code Linter
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'dev' || github.ref_name == 'test' 
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'temurin'
+
+    - name: Install Maven Checkstyle Plugin
+      run: mvn checkstyle:checkstyle
+
+    - name: Run Checkstyle Linter
+      run: |
+        mvn checkstyle:check
+        echo "Linter analysis completed."
