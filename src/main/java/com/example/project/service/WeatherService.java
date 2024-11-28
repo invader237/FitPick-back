@@ -14,7 +14,7 @@ public class WeatherService {
     // URL de l'API OpenWeatherMap pour la météo actuelle
     private final String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=Metz&units=metric&appid=";
 
-    public String getWeather() {
+    private String getWeather() {
         String url = apiUrl + apiKey;
         
         // Utilisation de RestTemplate pour envoyer la requête GET
@@ -23,4 +23,10 @@ public class WeatherService {
         
         return response; // Retourne la réponse JSON de l'API
     }
+
+    public String getWeatherDisplayData() {
+        // To do: Parse the JSON response and return only the data you want to display
+        return getWeather();
+    }
+    
 }
