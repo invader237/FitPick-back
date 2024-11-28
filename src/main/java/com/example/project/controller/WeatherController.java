@@ -12,8 +12,8 @@ public class WeatherController {
     private WeatherService weatherService;
 
     // Endpoint pour obtenir la météo
-    @GetMapping("/weather")
+    @GetMapping("/weather/display")
     public String getWeather() {
-        return weatherService.getWeather();
+        return weatherService.getWeatherDisplayData();
     }
 }
