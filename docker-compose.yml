@@ -1,17 +1,12 @@
-name: fitpick-backend
-version: '3.8'
-
 services:
-  app:
+  backend:
     build:
-      context: .
+      context: ./
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     networks:
       - spring-network
-    volumes:
-      - ./logs:/app/logs
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_USER=${DB_USER}
