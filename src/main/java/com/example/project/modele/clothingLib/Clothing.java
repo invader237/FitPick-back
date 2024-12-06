@@ -42,6 +42,10 @@ public class Clothing {
         return clo_id;
     }
 
+    public void setClo_id(Long clo_id) {
+        this.clo_id = clo_id;
+    }
+
     public String getClo_lib() {
         return clo_lib;
     }
