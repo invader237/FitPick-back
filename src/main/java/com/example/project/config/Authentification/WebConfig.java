@@ -2,9 +2,9 @@ package com.example.project.config.Authentification;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class WebConfig {
@@ -12,13 +12,13 @@ public class WebConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:3000");  // Frontend local
-        config.addAllowedMethod("*");  // Autorise toutes les méthodes
-        config.addAllowedHeader("*");  // Autorise tous les headers
-        config.setAllowCredentials(true); // Permet l'envoi de cookies entre le frontend et le backend
+        config.addAllowedOriginPattern("*"); // Remplace par des domaines spécifiques en production
+        config.addAllowedMethod("*"); // Autorise toutes les méthodes HTTP
+        config.addAllowedHeader("*"); // Autorise tous les en-têtes
+        config.setAllowCredentials(true); // Autorise l'envoi de cookies et d'informations d'identité
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);  // Applique la configuration CORS à toutes les routes
+        source.registerCorsConfiguration("/**", config); // Applique la configuration à toutes les routes
 
         return new CorsFilter(source);
     }
