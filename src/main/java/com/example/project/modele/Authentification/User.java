@@ -10,29 +10,30 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id") // Ajout du préfixe user_
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "user_email", nullable = false, unique = true) // Ajout du préfixe user_
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "user_password", nullable = false) // Ajout du préfixe user_
     private String password;
 
-    @Column(name = "first_name")
+    @Column(name = "user_first_name") // Ajout du préfixe user_
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "user_last_name") // Ajout du préfixe user_
     private String lastName;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
+        joinColumns = @JoinColumn(name = "user_id"), // Préfixe déjà correct
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Getters and setters
+    // Getters et setters
     public Long getId() {
         return id;
     }

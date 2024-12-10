@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "roles") // La table correspondante dans la base de données
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id") // Correspond au préfixe ajouté à la colonne
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "role_name", nullable = false, unique = true) // Ajout explicite pour le préfixe
     private String name;
 
     // Constructeurs
