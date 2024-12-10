@@ -23,7 +23,7 @@ public class WeatherController {
     
     @GetMapping("/weather/display")
     public WeatherDataDisplay getWeatherDisplayData(@RequestParam double lat, @RequestParam double lon) {
-        //return weatherService.getWeatherDisplayData(lat, lon);  
-        return new WeatherDataDisplay(7.01, "few clouds", 81, 5.14);
+        //return new WeatherDataDisplay(7.01, "few clouds", 81, 5.14);
+        return weatherService.getWeatherDisplayData(lat, lon);  
     }
 }
