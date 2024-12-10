@@ -1,5 +1,16 @@
 package com.example.project.model;
 
+/**
+ * Represents the weather response from an API, containing various weather-related information.
+ *
+ * Attributes:
+ * - `coord`: The geographical coordinates (longitude and latitude) of the location.
+ * - `weather`: An array of weather conditions for the location.
+ * - `main`: The main weather data, including temperature and humidity.
+ * - `wind`: The wind data for the location, including wind speed.
+ * - `sys`: System-related information, such as the country code.
+ * - `name`: The name of the location (e.g., city name).
+ */
 public class WeatherResponse {
     private Coord coord;
     private Weather[] weather;
