@@ -20,6 +20,17 @@ public class RegisterRequestDTO {
     @NotBlank(message = "Last name is mandatory")
     private String lastName;
 
+    // Constructeur sans arguments
+    public RegisterRequestDTO() {}
+
+    // Constructeur avec tous les arguments
+    public RegisterRequestDTO(String email, String password, String firstName, String lastName) {
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     // Getters et setters
     public String getEmail() {
         return email;
