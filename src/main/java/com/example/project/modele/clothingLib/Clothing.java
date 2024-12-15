@@ -23,7 +23,7 @@ public class Clothing {
     @Column(name = "clo_lib", nullable = false, length = 255)
     private String clo_lib;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "clothe_tags",
         joinColumns = @JoinColumn(name = "clo_id"),
