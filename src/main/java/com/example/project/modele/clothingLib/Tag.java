@@ -45,6 +45,10 @@ public class Tag {
         return tag_id;
     }
 
+    public void setTag_id(Long tag_id) {
+        this.tag_id = tag_id;
+    }
+
     public String getTag_lib() {
         return tag_lib;
     }
