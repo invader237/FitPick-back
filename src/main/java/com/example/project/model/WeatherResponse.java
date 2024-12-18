@@ -2,31 +2,11 @@ package com.example.project.model;
 
 /**
  * Represents the weather response from an API, containing various weather-related information.
- *
- * Attributes:
- * - `coord`: The geographical coordinates (longitude and latitude) of the location.
- * - `weather`: An array of weather conditions for the location.
- * - `main`: The main weather data, including temperature and humidity.
- * - `wind`: The wind data for the location, including wind speed.
- * - `sys`: System-related information, such as the country code.
- * - `name`: The name of the location (e.g., city name).
  */
 public class WeatherResponse {
-    private Coord coord;
-    private Weather[] weather;
-    private Main main;
-    private Wind wind;
-    private Sys sys;
-    private String name;
-
-
-    public Coord getCoord() {
-        return coord;
-    }
-
-    public void setCoord(Coord coord) {
-        this.coord = coord;
-    }
+    private Weather[] weather;   // Contient "main" et "description"
+    private Main main;           // Données principales (température, humidité)
+    private Wind wind;           // Vitesse du vent
 
     public Weather[] getWeather() {
         return weather;
@@ -52,46 +32,10 @@ public class WeatherResponse {
         this.wind = wind;
     }
 
-    public Sys getSys() {
-        return sys;
-    }
-
-    public void setSys(Sys sys) {
-        this.sys = sys;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public static class Coord {
-        private double lon;
-        private double lat;
-
-        public double getLon() {
-            return lon;
-        }
-
-        public void setLon(double lon) {
-            this.lon = lon;
-        }
-
-        public double getLat() {
-            return lat;
-        }
-
-        public void setLat(double lat) {
-            this.lat = lat;
-        }
-    }
-
+    // Classes internes correspondant à la réponse JSON de l'API
     public static class Weather {
-        private String main;
-        private String description;
+        private String main;  // Utilisé pour l'affichage dynamique
+        private String description;  // Ignoré
 
         public String getMain() {
             return main;
@@ -140,18 +84,6 @@ public class WeatherResponse {
 
         public void setSpeed(double speed) {
             this.speed = speed;
-        }
-    }
-
-    public static class Sys {
-        private String country;
-
-        public String getCountry() {
-            return country;
-        }
-
-        public void setCountry(String country) {
-            this.country = country;
         }
     }
 }

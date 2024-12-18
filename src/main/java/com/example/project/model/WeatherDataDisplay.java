@@ -2,37 +2,20 @@ package com.example.project.model;
 
 /**
  * Represents simplified weather data for display purposes.
- *
- * Attributes:
- * - `temperature`: The current temperature in degrees Celsius.
- * - `description`: A short textual description of the weather conditions (e.g., "clear sky").
- * - `humidity`: The humidity level as a percentage.
- * - `windSpeed`: The wind speed measured in meters per second.
  */
 public class WeatherDataDisplay {
-    private double temperature;
-    private String description;
-    private int humidity;
-    private double windSpeed;
+    private double temperature;   // Température actuelle
+    private String main;          // Contiendra "main" de l'API OpenWeatherMap (ex: "Rain")
+    private int humidity;         // Niveau d'humidité
+    private double windSpeed;     // Vitesse du vent
 
-    /**
-     * Default constructor for the {@code WeatherDataDisplay} class.
-     * Initializes an empty weather data object.
-     */
+    // Constructeurs
     public WeatherDataDisplay() {
     }
 
-    /**
-     * Constructs a {@code WeatherDataDisplay} object with specified weather details.
-     *
-     * @param temperature The temperature in degrees Celsius.
-     * @param description A short description of the weather conditions.
-     * @param humidity The humidity level as a percentage.
-     * @param windSpeed The wind speed in meters per second.
-     */
-    public WeatherDataDisplay(double temperature, String description, int humidity, double windSpeed) {
+    public WeatherDataDisplay(double temperature, String main, int humidity, double windSpeed) {
         this.temperature = temperature;
-        this.description = description;
+        this.main = main;  // Utilisation de "main" au lieu de "description"
         this.humidity = humidity;
         this.windSpeed = windSpeed;
     }
@@ -46,12 +29,12 @@ public class WeatherDataDisplay {
         this.temperature = temperature;
     }
 
-    public String getDescription() {
-        return description;
+    public String getMain() {
+        return main;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setMain(String main) {
+        this.main = main;
     }
 
     public int getHumidity() {
