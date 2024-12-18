@@ -38,7 +38,7 @@ public class WeatherService {
         String main = weatherResponse.getWeather()[0].getMain();  // Utilisation de "main"
         int humidity = weatherResponse.getMain().getHumidity();
         double windSpeed = weatherResponse.getWind().getSpeed();
-
+        System.out.println(main);
         return new WeatherDataDisplay(temperature, main, humidity, windSpeed);
     }
 }
