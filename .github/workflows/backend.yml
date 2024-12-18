@@ -50,7 +50,6 @@ jobs:
   linter:
     name: Code Linter
     runs-on: ubuntu-latest
-    if: github.ref_name == 'dev' || github.ref_name == 'test' 
 
     steps:
     - name: Checkout code
