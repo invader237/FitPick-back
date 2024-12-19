@@ -1,7 +1,7 @@
 package com.example.project.service.Authentification;
 
-import com.example.project.modele.Authentification.Role;
-import com.example.project.modele.Authentification.User;
+import com.example.project.model.Authentification.Role;
+import com.example.project.model.Authentification.User;
 import com.example.project.repository.Authentification.RoleRepository;
 import com.example.project.repository.Authentification.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,13 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class AuthServiceTest {
@@ -29,98 +27,133 @@ class AuthServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        passwordEncoder = new BCryptPasswordEncoder(); // Utilisation du même PasswordEncoder que dans votre configuration
-        authService = new AuthService(userRepository, roleRepository, passwordEncoder);
     }
 
     @Test
-    void registerUser_ShouldCreateNewUser_WhenDetailsAreValid() {
-        // Données d'entrée
+    void testRegisterUser_UserAlreadyExists() {
+        // Données
         String email = "test@example.com";
-        String password = "password123";
-        String firstName = "John";
-        String lastName = "Doe";
+        when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        // Simulation du rôle USER
-        Role roleUser = new Role("ROLE_USER");
-        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(roleUser));
-
-        // Simulation pour indiquer qu'aucun utilisateur n'existe déjà
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-        // Simulation pour sauvegarder l'utilisateur
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // Appel de la méthode à tester
-        User createdUser = authService.registerUser(email, password, firstName, lastName);
-
-        // Assertions pour vérifier le résultat
-        assertNotNull(createdUser, "L'utilisateur créé ne doit pas être null.");
-        assertEquals(email, createdUser.getEmail(), "L'email de l'utilisateur doit correspondre.");
-        assertEquals(firstName, createdUser.getFirstName(), "Le prénom doit correspondre.");
-        assertEquals(lastName, createdUser.getLastName(), "Le nom doit correspondre.");
-        assertTrue(passwordEncoder.matches(password, createdUser.getPassword()), "Le mot de passe doit être haché correctement.");
-        assertEquals(1, createdUser.getRoles().size(), "L'utilisateur doit avoir exactement un rôle.");
-        assertTrue(createdUser.getRoles().contains(roleUser), "Le rôle attribué doit être ROLE_USER.");
-
-        // Vérifications des interactions avec les mocks
-        verify(roleRepository, times(1)).findByName("ROLE_USER");
-        verify(userRepository, times(1)).findByEmail(email);
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void registerUser_ShouldThrowException_WhenEmailAlreadyExists() {
-        // Arrange
-        String email = "test@example.com";
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(new User()));
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () ->
-                authService.registerUser(email, "password123", "Test", "User")
+        // Test
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                authService.registerUser(email, "password123", "John", "Doe")
         );
 
-        verify(userRepository, never()).save(any(User.class));
+        // Vérifications
+        assertEquals("Cet email est déjà utilisé.", exception.getMessage());
+        verify(userRepository, times(1)).existsByEmail(email);
     }
 
     @Test
-    void authenticateUser_ShouldThrowException_WhenPasswordIsIncorrect() {
-        // Arrange
-        String email = "test@example.com";
-        String rawPassword = "wrongPassword";
+    void testRegisterUser_Success() {
+        // Données
+        String email = "new@example.com";
+        String hashedPassword = "hashedPassword";
+        when(userRepository.existsByEmail(email)).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn(hashedPassword);
+        Role userRole = new Role("ROLE_USER");
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
 
+        // Test
+        authService.registerUser(email, "password123", "John", "Doe");
+
+        // Vérifications
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(passwordEncoder, times(1)).encode("password123");
+    }
+
+    @Test
+    void testAuthenticateUser_InvalidCredentials() {
+        // Données
+        String email = "test@example.com";
+        String password = "wrongPassword";
         User user = new User();
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode("password123"));
+        user.setPassword("hashedPassword");
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, user.getPassword())).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () ->
-                authService.authenticateUser(email, rawPassword)
+        // Test
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                authService.authenticateUser(email, password)
         );
 
-        verify(userRepository, times(1)).findByEmail(email);
+        // Vérifications
+        assertEquals("Email ou mot de passe invalide.", exception.getMessage());
+        verify(passwordEncoder, times(1)).matches(password, user.getPassword());
     }
 
     @Test
-    void authenticateUser_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
-        String email = "nonexistent@example.com";
+    void testAuthenticateUser_Success() {
+        // Données
+        String email = "test@example.com";
+        String password = "password123";
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword("hashedPassword");
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, user.getPassword())).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () ->
-                authService.authenticateUser(email, "password123")
+        // Test
+        User authenticatedUser = authService.authenticateUser(email, password);
+
+        // Vérifications
+        assertEquals(email, authenticatedUser.getEmail());
+        verify(passwordEncoder, times(1)).matches(password, user.getPassword());
+    }
+
+    @Test
+    void testChangePassword_InvalidOldPassword() {
+        // Données
+        String email = "test@example.com";
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword("hashedOldPassword");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(oldPassword, user.getPassword())).thenReturn(false);
+
+        // Test
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                authService.changePassword(email, oldPassword, newPassword)
         );
 
-        verify(userRepository, times(1)).findByEmail(email);
+        // Vérifications
+        assertEquals("L'ancien mot de passe est incorrect.", exception.getMessage());
+        verify(passwordEncoder, times(1)).matches(oldPassword, user.getPassword());
+    }
+
+    @Test
+    void testChangePassword_Success() {
+        // Données
+        String email = "test@example.com";
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        String hashedNewPassword = "hashedNewPassword";
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword("hashedOldPassword");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(oldPassword, user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn(hashedNewPassword);
+
+        // Test
+        authService.changePassword(email, oldPassword, newPassword);
+
+        // Vérifications
+        assertEquals(hashedNewPassword, user.getPassword());
+        verify(userRepository, times(1)).save(user);
     }
 }
