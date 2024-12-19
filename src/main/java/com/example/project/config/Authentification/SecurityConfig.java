@@ -42,7 +42,7 @@ public class SecurityConfig {
     
             // Gestion des autorisations
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/public/**", "/api/auth/**").permitAll() // Endpoints publics
+                .requestMatchers("/api/public/**", "/api/auth/**", "/api/weather/**").permitAll() // Endpoints publics
                 .anyRequest().authenticated() // Toute autre requête doit être authentifiée
             )
     
