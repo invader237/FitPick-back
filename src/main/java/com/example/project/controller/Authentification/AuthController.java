@@ -5,114 +5,163 @@ import com.example.project.dto.Authentification.ChangePasswordDTO;
 import com.example.project.dto.Authentification.LoginRequestDTO;
 import com.example.project.dto.Authentification.LoginResponseDTO;
 import com.example.project.dto.Authentification.RegisterRequestDTO;
-import com.example.project.modele.Authentification.Role;
-import com.example.project.modele.Authentification.User;
-import com.example.project.service.Authentification.AuthService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.project.model.Authentification.User;
+import com.example.project.service.Authentification.AuthService;
+import com.example.project.service.Authentification.EmailService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
+import jakarta.validation.Valid;
 import java.util.stream.Collectors;
 
+/**
+ * Contrôleur pour la gestion de l'authentification des utilisateurs.
+ */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000") // Autoriser uniquement localhost:3000
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final AuthService authService;
+    private final EmailService emailService;
+    private final JwtUtil jwtUtil;
 
     /**
-     * Endpoint pour l'inscription.
+     * Constructeur pour injecter les services nécessaires.
      *
-     * @param request DTO contenant les informations nécessaires pour enregistrer un utilisateur
-     * @return Réponse HTTP indiquant le succès ou l'échec de l'inscription
+     * @param authService Service pour l'authentification.
+     * @param emailService Service pour la gestion des emails.
+     * @param jwtUtil Utilitaire pour les opérations JWT.
+     */
+    public AuthController(AuthService authService, EmailService emailService, JwtUtil jwtUtil) {
+        this.authService = authService;
+        this.emailService = emailService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    /**
+     * Enregistre un nouvel utilisateur.
+     *
+     * @param request DTO contenant les informations d'inscription.
+     * @return Réponse HTTP avec un message de succès ou d'erreur.
      */
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDTO request) {
         try {
             authService.registerUser(
-                    request.getEmail(),
-                    request.getPassword(),
-                    request.getFirstName(),
-                    request.getLastName()
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName()
             );
-            return ResponseEntity.ok("User registered successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur enregistré avec succès.");
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     /**
-     * Endpoint pour la connexion.
+     * Authentifie un utilisateur et génère un token JWT.
      *
-     * @param request DTO contenant les informations nécessaires pour l'authentification
-     * @return Réponse HTTP contenant le JWT en cas de succès ou une erreur en cas d'échec
+     * @param request DTO contenant les informations de connexion.
+     * @return Réponse HTTP avec un token JWT ou un message d'erreur.
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         try {
-            // Authentifier l'utilisateur
             User user = authService.authenticateUser(request.getEmail(), request.getPassword());
-
-            // Convertir Set<Role> en List<String> pour les rôles de l'utilisateur
-            List<String> roles = user.getRoles().stream()
-                    .map(Role::getName)
-                    .collect(Collectors.toList());
-
-            // Générer le JWT avec les rôles
-            String token = jwtUtil.generateToken(user.getEmail(), roles);
-
+            String token = authService.generateAuthToken(
+                user.getEmail(),
+                user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList())
+            );
             return ResponseEntity.ok(new LoginResponseDTO(token));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(new LoginResponseDTO(null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseDTO(null));
         }
     }
 
     /**
-     * Endpoint pour récupérer les informations de l'utilisateur connecté.
+     * Récupère les informations de l'utilisateur connecté.
      *
-     * @return Informations de l'utilisateur connecté
+     * @return Réponse HTTP avec les informations de l'utilisateur ou une erreur.
      */
     @GetMapping("/me")
     public ResponseEntity<User> getUserInfo() {
         try {
-            // Récupérer l'utilisateur connecté via le token
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
             User user = authService.getUserByEmail(email);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
     /**
-     * Endpoint pour changer le mot de passe de l'utilisateur connecté.
+     * Change le mot de passe de l'utilisateur connecté.
      *
-     * @param changePasswordDTO DTO contenant l'ancien et le nouveau mot de passe
-     * @return Réponse HTTP indiquant le succès ou l'échec de l'opération
+     * @param changePasswordDTO DTO contenant l'ancien et le nouveau mot de passe.
+     * @return Réponse HTTP avec un message de succès ou d'erreur.
      */
     @PutMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         try {
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
             authService.changePassword(
                 email,
                 changePasswordDTO.getOldPassword(),
                 changePasswordDTO.getNewPassword()
             );
-            return ResponseEntity.ok("Mot de passe changé avec succès");
+            return ResponseEntity.ok("Mot de passe changé avec succès.");
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie un email de réinitialisation de mot de passe.
+     *
+     * @param email Adresse email de l'utilisateur.
+     * @return Réponse HTTP avec un message de succès ou d'erreur.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        try {
+            if (!authService.emailExists(email)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cet email n'existe pas.");
+            }
+            if (!authService.canRequestReset(email)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez attendre avant de demander un autre lien.");
+            }
+            String resetToken = authService.generateResetToken(email);
+            String resetLink = "http://localhost:3000/reset-password?token=" + resetToken;
+            emailService.sendResetPasswordEmail(email, resetLink);
+            return ResponseEntity.ok("Un email de réinitialisation a été envoyé.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Réinitialise le mot de passe avec un token JWT.
+     *
+     * @param token Token JWT pour réinitialiser le mot de passe.
+     * @param newPassword Nouveau mot de passe.
+     * @return Réponse HTTP avec un message de succès ou d'erreur.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+        try {
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token invalide ou expiré.");
+            }
+            authService.resetPassword(token, newPassword);
+            return ResponseEntity.ok("Mot de passe réinitialisé avec succès.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
