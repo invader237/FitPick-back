@@ -4,26 +4,29 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO pour l'enregistrement d'un nouvel utilisateur.
+ */
 public class RegisterRequestDTO {
 
-    @NotBlank(message = "Email is mandatory")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "L'email est obligatoire.")
+    @Email(message = "Le format de l'email est invalide.")
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Le mot de passe est obligatoire.")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères.")
     private String password;
 
-    @NotBlank(message = "First name is mandatory")
+    @NotBlank(message = "Le prénom est obligatoire.")
     private String firstName;
 
-    @NotBlank(message = "Last name is mandatory")
+    @NotBlank(message = "Le nom est obligatoire.")
     private String lastName;
 
     // Constructeur sans arguments
     public RegisterRequestDTO() {}
 
-    // Constructeur avec tous les arguments
+    // Constructeur complet
     public RegisterRequestDTO(String email, String password, String firstName, String lastName) {
         this.email = email;
         this.password = password;

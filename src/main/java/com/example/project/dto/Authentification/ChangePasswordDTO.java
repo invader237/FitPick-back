@@ -1,7 +1,16 @@
 package com.example.project.dto.Authentification;
 
+import jakarta.validation.constraints.NotBlank;
+
+/**
+ * DTO pour le changement de mot de passe.
+ */
 public class ChangePasswordDTO {
+
+    @NotBlank(message = "L'ancien mot de passe est obligatoire.")
     private String oldPassword;
+
+    @NotBlank(message = "Le nouveau mot de passe est obligatoire.")
     private String newPassword;
 
     // Getters et setters
