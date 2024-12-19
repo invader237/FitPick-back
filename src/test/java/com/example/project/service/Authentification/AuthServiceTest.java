@@ -155,5 +155,6 @@ class AuthServiceTest {
         // Vérifications
         assertEquals(hashedNewPassword, user.getPassword());
         verify(userRepository, times(1)).save(user);
+
     }
 }

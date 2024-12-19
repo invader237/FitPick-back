@@ -17,6 +17,7 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+
         <!-- Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -168,6 +169,7 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

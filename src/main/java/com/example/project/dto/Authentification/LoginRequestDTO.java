@@ -13,6 +13,7 @@ public class LoginRequestDTO {
     private String email;
 
     @NotBlank(message = "Le mot de passe est obligatoire.")
+
     private String password;
 
     // Getters et setters

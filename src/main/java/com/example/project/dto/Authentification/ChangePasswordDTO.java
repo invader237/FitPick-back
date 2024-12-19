@@ -11,6 +11,7 @@ public class ChangePasswordDTO {
     private String oldPassword;
 
     @NotBlank(message = "Le nouveau mot de passe est obligatoire.")
+
     private String newPassword;
 
     // Getters et setters

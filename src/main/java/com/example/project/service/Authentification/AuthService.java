@@ -53,6 +53,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
     @PostConstruct
     public void init() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);

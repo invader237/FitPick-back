@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/weather")
+@CrossOrigin(origins = "http://localhost:3000") 
 public class WeatherController {
 
     @Autowired
@@ -23,7 +25,7 @@ public class WeatherController {
      * @return An instance of {@link WeatherResponse} containing complete weather data
      *         for the specified coordinates.
      */
-    @GetMapping("/weather")
+    @GetMapping("/")
     public WeatherResponse getWeather(@RequestParam double lat, @RequestParam double lon) {
         return weatherService.getWeather(lat, lon);
     }
@@ -36,7 +38,7 @@ public class WeatherController {
      * @return An instance of {@link WeatherDataDisplay} containing simplified weather data
      *         for the specified coordinates.
      */
-    @GetMapping("/weather/display")
+    @GetMapping("/display")
     public WeatherDataDisplay getWeatherDisplayData(@RequestParam double lat, @RequestParam double lon) {
         //return new WeatherDataDisplay(7.01, "few clouds", 81, 5.14);
         return weatherService.getWeatherDisplayData(lat, lon);  
