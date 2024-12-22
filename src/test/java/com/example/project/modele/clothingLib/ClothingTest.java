@@ -3,6 +3,9 @@ package com.example.project.modele.clothingLib;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Tag;
+
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;

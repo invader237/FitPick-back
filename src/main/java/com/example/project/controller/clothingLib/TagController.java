@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.project.service.clothingLib.TagService;
-import com.example.project.modele.clothingLib.Tag;
+import com.example.project.model.clothingLib.Tag;
 
 import java.util.List;
 

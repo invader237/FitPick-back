@@ -1,4 +1,4 @@
-package com.example.project.modele.clothingLib;
+package com.example.project.model.clothingLib;
 
 import jakarta.persistence.*;
 import java.util.List;

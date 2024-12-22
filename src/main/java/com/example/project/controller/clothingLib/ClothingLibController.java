@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.project.service.clothingLib.ClothingService;
-import com.example.project.modele.clothingLib.Clothing;
-import com.example.project.modele.clothingLib.Tag;
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Tag;
 import com.example.project.dto.clothingLib.ClothingRequest;
 
 import java.util.HashMap;

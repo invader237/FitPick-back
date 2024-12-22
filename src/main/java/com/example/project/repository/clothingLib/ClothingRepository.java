@@ -1,10 +1,12 @@
 package com.example.project.repository.clothingLib;
 
-import com.example.project.modele.clothingLib.Clothing;
-import com.example.project.modele.clothingLib.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Tag;
+
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
