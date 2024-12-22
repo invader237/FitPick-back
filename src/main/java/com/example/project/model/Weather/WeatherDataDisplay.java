@@ -1,4 +1,4 @@
-package com.example.project.model;
+package com.example.project.model.Weather;
 
 /**
  * Represents simplified weather data for display purposes.

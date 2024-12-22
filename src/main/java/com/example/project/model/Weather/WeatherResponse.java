@@ -1,4 +1,4 @@
-package com.example.project.model;
+package com.example.project.model.Weather;
 
 /**
  * Represents the weather response from an API, containing various weather-related information.

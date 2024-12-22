@@ -1,7 +1,7 @@
-package com.example.project.service;
+package com.example.project.service.Weather;
 
-import com.example.project.model.WeatherResponse;
-import com.example.project.model.WeatherDataDisplay;
+import com.example.project.model.Weather.WeatherResponse;
+import com.example.project.model.Weather.WeatherDataDisplay;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
