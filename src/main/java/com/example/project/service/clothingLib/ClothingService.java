@@ -1,16 +1,13 @@
 package com.example.project.service.clothingLib;
 
-import com.example.project.dto.clothingLib.ClothingDTO;
-import com.example.project.dto.clothingLib.TagDTO;
-import com.example.project.modele.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Tag;
 import com.example.project.repository.clothingLib.ClothingRepository;
-import com.example.project.modele.clothingLib.Tag;
 import com.example.project.repository.clothingLib.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ClothingService {

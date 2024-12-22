@@ -1,17 +1,15 @@
 package com.example.project.service.clothingLib;
 
-import com.example.project.modele.clothingLib.Clothing;
-import com.example.project.modele.clothingLib.Tag;
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.model.clothingLib.Tag;
 import com.example.project.repository.clothingLib.ClothingRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

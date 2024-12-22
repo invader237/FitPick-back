@@ -1,6 +1,6 @@
 package com.example.project.service.clothingLib;
 
-import com.example.project.modele.clothingLib.Tag;
+import com.example.project.model.clothingLib.Tag;
 import com.example.project.repository.clothingLib.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

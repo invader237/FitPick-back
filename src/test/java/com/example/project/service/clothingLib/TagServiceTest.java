@@ -1,11 +1,10 @@
 package com.example.project.service.clothingLib;
 
-import com.example.project.modele.clothingLib.Tag;
+import com.example.project.model.clothingLib.Tag;
 import com.example.project.repository.clothingLib.TagRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
