@@ -38,8 +38,39 @@ public class WeatherService {
         RestTemplate restTemplate = new RestTemplate();
         
         // Make the request and map the response to a WeatherResponse object
-        return restTemplate.getForObject(url, WeatherResponse.class);  
-    }
+        //return restTemplate.getForObject(url, WeatherResponse.class);  
+        return new WeatherResponse() {{
+    setCoord(new Coord() {{
+        setLon(6.1728);
+        setLat(49.1193);
+    }});
+    setWeather(new Weather[] {
+        new Weather() {{
+            setMain("Snow");
+            setDescription("snow");
+        }},
+        new Weather() {{
+            setMain("Mist");
+            setDescription("mist");
+        }}
+    });
+    setMain(new Main() {{
+        setTemp(0.82);
+        setFeels_like(-3.97);
+        setHumidity(100);
+    }});
+    setWind(new Wind() {{
+        setSpeed(5.14);
+    }});
+    setRain(null);
+    setClouds(new Clouds() {{
+        setAll(100);
+    }});
+    setSys(new Sys() {{
+        setCountry("FR");
+    }});
+    setName("Metz");
+}};    }
 
     /**
      * Retrieves simplified weather data suitable for display purposes.
