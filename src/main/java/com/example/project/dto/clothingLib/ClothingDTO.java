@@ -38,4 +38,13 @@ public class ClothingDTO {
     public void setTags(List<TagDTO> tags) {
         this.tags = tags;
     }
+
+    @Override
+    public String toString() {
+        return "ClothingDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", tags=" + tags +
+                '}';
+    }
 }
