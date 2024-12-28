@@ -31,7 +31,13 @@ public class RecoService {
 
     private WeatherRecoDTO weatherRecoData;
 
+    private int minTemp = -30;
+    private int maxTemp = 70;
+    private int alignTemp = 20;
+    private double CorrectionRate = 1.5;
+
     public void getWeatherRecoData(WeatherResponse weather) {
+
         int humidity = weather.getMain().getHumidity(); 
         int rain = getRainIndex(weather.getRain().getOneHour()); 
         int temperature = getTempIndex(weather.getMain().getTemp()); 
@@ -43,7 +49,12 @@ public class RecoService {
     }
 
     public int getTempIndex(double temperature) {
-        return (int) (((int) temperature + 30) * (70 / 100.0));
+        int t = (int) Math.round(temperature); // Arrondi pour éviter une perte de précision
+        double tIndex = 100 * (
+            (Math.pow(t - alignTemp, 3) - Math.pow(minTemp - alignTemp, 3)) / 
+            (Math.pow(maxTemp - alignTemp, 3) - Math.pow(minTemp - alignTemp, 3))
+        );
+        return (int) Math.round(tIndex);
     }
 
     public int getRainIndex(double rain) {
@@ -59,7 +70,7 @@ public class RecoService {
         WeatherResponse weather = new WeatherResponse();
         weather.setMain(new Main() {{
             setHumidity(100);
-            setTemp(0);
+            setTemp(-20);
             //41 pour t-shirt
         }});
         weather.setRain(new Rain() {{
@@ -76,8 +87,7 @@ public class RecoService {
         // Récupérer les tags en fonction de la température
         List<Tag> tags = tagRepository.findByTemperature(weatherRecoData.getTemperature() - 10, weatherRecoData.getTemperature() + 10);
 
-        List<ClothingDTO> clothes = new ArrayList<>(); // Initialisation correcte de la liste
-
+        List<ClothingDTO> clothes = new ArrayList<ClothingDTO>();
         for (Tag t : tags) {
             System.out.println("ID: " + t.getTag_id() + ", Name: " + t.getTag_lib());
             
