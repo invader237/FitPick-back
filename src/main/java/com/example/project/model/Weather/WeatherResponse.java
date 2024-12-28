@@ -4,21 +4,24 @@ package com.example.project.model.Weather;
  * Represents the weather response from an API, containing various weather-related information.
  *
  * Attributes:
- * - `coord`: The geographical coordinates (longitude and latitude) of the location.
- * - `weather`: An array of weather conditions for the location.
- * - `main`: The main weather data, including temperature and humidity.
- * - `wind`: The wind data for the location, including wind speed.
- * - `sys`: System-related information, such as the country code.
- * - `name`: The name of the location (e.g., city name).
+ * - coord: The geographical coordinates (longitude and latitude) of the location.
+ * - weather: An array of weather conditions for the location.
+ * - main: The main weather data, including temperature, feels_like, and humidity.
+ * - wind: The wind data for the location, including wind speed.
+ * - rain: The rain data, including precipitation over the last hour.
+ * - clouds: The cloud coverage data.
+ * - sys: System-related information, such as the country code.
+ * - name: The name of the location (e.g., city name).
  */
 public class WeatherResponse {
     private Coord coord;
     private Weather[] weather;
     private Main main;
     private Wind wind;
+    private Rain rain;
+    private Clouds clouds;
     private Sys sys;
     private String name;
-
 
     public Coord getCoord() {
         return coord;
@@ -50,6 +53,22 @@ public class WeatherResponse {
 
     public void setWind(Wind wind) {
         this.wind = wind;
+    }
+
+    public Rain getRain() {
+        return rain;
+    }
+
+    public void setRain(Rain rain) {
+        this.rain = rain;
+    }
+
+    public Clouds getClouds() {
+        return clouds;
+    }
+
+    public void setClouds(Clouds clouds) {
+        this.clouds = clouds;
     }
 
     public Sys getSys() {
@@ -112,6 +131,7 @@ public class WeatherResponse {
 
     public static class Main {
         private double temp;
+        private double feels_like;
         private int humidity;
 
         public double getTemp() {
@@ -120,6 +140,14 @@ public class WeatherResponse {
 
         public void setTemp(double temp) {
             this.temp = temp;
+        }
+
+        public double getFeels_like() {
+            return feels_like;
+        }
+
+        public void setFeels_like(double feels_like) {
+            this.feels_like = feels_like;
         }
 
         public int getHumidity() {
@@ -143,6 +171,30 @@ public class WeatherResponse {
         }
     }
 
+    public static class Rain {
+        private double oneHour;
+
+        public double getOneHour() {
+            return oneHour;
+        }
+
+        public void setOneHour(double oneHour) {
+            this.oneHour = oneHour;
+        }
+    }
+
+    public static class Clouds {
+        private int all;
+
+        public int getAll() {
+            return all;
+        }
+
+        public void setAll(int all) {
+            this.all = all;
+        }
+    }
+
     public static class Sys {
         private String country;
 
@@ -153,5 +205,19 @@ public class WeatherResponse {
         public void setCountry(String country) {
             this.country = country;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "WeatherResponse{" +
+                "coord=" + coord +
+                ", weather=" + weather +
+                ", main=" + main +
+                ", wind=" + wind +
+                ", rain=" + rain +
+                ", clouds=" + clouds +
+                ", sys=" + sys +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
