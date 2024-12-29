@@ -56,6 +56,12 @@ public class OutfitLibController {
         return ResponseEntity.ok(outfit);
     }
 
+    @PutMapping("/{id}/update")
+    public ResponseEntity<Outfit> updateOutfit(@PathVariable Long id, @RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
+        Outfit updatedOutfit = outfitService.updateOutfit(id, userId, outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(), outfitDTO.getName());
+        return ResponseEntity.ok(updatedOutfit);
+    }
+
 }
 
 

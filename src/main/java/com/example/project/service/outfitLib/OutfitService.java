@@ -46,4 +46,17 @@ public class OutfitService {
         return outfitRepository.save(outfit);
     }
 
+    public Outfit updateOutfit(Long outfitId, Long userId, List<Long> clothingIds, String outfitName) {
+        Outfit outfit = outfitRepository.findById(outfitId).orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
+        if (!outfit.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Cette tenue n'appartient pas à l'utilisateur.");
+        }
+        List<Clothing> userClothes = clothingRepository.findByUserIdAndClothingIdIn(userId, clothingIds);
+        if (userClothes.size() != clothingIds.size()) {
+            throw new IllegalArgumentException("Certains vêtements ne sont pas associés à cet utilisateur.");
+        }
+        outfit.setName(outfitName);
+        outfit.setClothingItems(userClothes);
+        return outfitRepository.save(outfit);
+    }
 }
