@@ -1,11 +1,15 @@
 package com.example.project.controller.outfitLib;
 
 import com.example.project.model.outfitLib.Outfit;
+import com.example.project.dto.outfitLib.OutfitDTO;
+import com.example.project.dto.clothingLib.ClothingDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.project.service.outfitLib.OutfitService;
+
 import java.util.List;
 
 @RestController
@@ -33,11 +37,6 @@ public class OutfitLibController {
     @GetMapping("/user/{userId}")
     public List<Outfit> getOutfitsByUserId(@PathVariable("userId") Long userId) {
         return outfitService.getOutfitsByUserId(userId);
-    }
-
-    @PostMapping("/")
-    public Outfit createOutfit(@RequestBody Outfit outfit) {
-        return outfitService.createOutfit(outfit);
     }
 
     @GetMapping("/{id}/details")
@@ -68,5 +67,3 @@ public class OutfitLibController {
         return ResponseEntity.noContent().build();
     }
 }
-
-
