@@ -50,6 +50,12 @@ public class OutfitLibController {
         }
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<Outfit> createOutfit(@RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
+        Outfit outfit = outfitService.createOutfit(userId, outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(), outfitDTO.getName());
+        return ResponseEntity.ok(outfit);
+    }
+
 }
 
 

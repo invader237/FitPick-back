@@ -34,4 +34,16 @@ public class OutfitService {
         return new OutfitDTO(outfit.getId(), outfit.getName(), outfit.getClothingItems());
     }
 
+    public Outfit createOutfit(Long userId, List<Long> clothingIds, String outfitName) {
+        List<Clothing> userClothes = clothingRepository.findByUserIdAndClothingIdIn(userId, clothingIds);
+        if (userClothes.size() != clothingIds.size()) {
+            throw new IllegalArgumentException("Certains vêtements ne sont pas associés à cet utilisateur.");
+        }
+        Outfit outfit = new Outfit();
+        outfit.setName(outfitName);
+        outfit.setUserId(userId);
+        outfit.setClothingItems(userClothes);
+        return outfitRepository.save(outfit);
+    }
+
 }
