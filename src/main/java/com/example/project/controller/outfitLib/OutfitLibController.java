@@ -40,6 +40,15 @@ public class OutfitLibController {
         return outfitService.createOutfit(outfit);
     }
 
+    @GetMapping("/{id}/details")
+    public ResponseEntity<OutfitDTO> getOutfitDetails(@PathVariable("id") Long id) {
+        OutfitDTO outfitDetails = outfitService.getOutfitDetails(id);
+        if (outfitDetails != null) {
+            return ResponseEntity.ok(outfitDetails);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
 

@@ -26,5 +26,12 @@ public class OutfitService {
         return outfitRepository.findByUserId(userId);
     }
 
+    public OutfitDTO getOutfitDetails(Long outfitId) {
+        Outfit outfit = outfitRepository.findById(outfitId).orElse(null);
+        if (outfit == null) {
+            return null;
+        }
+        return new OutfitDTO(outfit.getId(), outfit.getName(), outfit.getClothingItems());
+    }
 
 }
