@@ -13,6 +13,14 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}  # Clé API SendGrid
+      - JWT_SECRET=${JWT_SECRET}             # Clé secrète JWT
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - JWT_EXPIRATION_AUTH=${JWT_EXPIRATION_AUTH}
+      - JWT_EXPIRATION_RESET=${JWT_EXPIRATION_RESET} # Ajouté
+      - SECURITY_SALT=${SECURITY_SALT}
+    mem_limit: 2g  # Limiter la RAM du backend à 2 Go
+    memswap_limit: 3g  # Limiter la mémoire + swap à 3 Go
 
 networks:
   spring-network:
