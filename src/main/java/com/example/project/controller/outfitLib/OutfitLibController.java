@@ -62,6 +62,11 @@ public class OutfitLibController {
         return ResponseEntity.ok(updatedOutfit);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOutfit(@PathVariable Long id, @RequestParam Long userId) {
+        outfitService.deleteOutfit(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

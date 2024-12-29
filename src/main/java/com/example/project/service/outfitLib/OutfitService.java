@@ -59,4 +59,12 @@ public class OutfitService {
         outfit.setClothingItems(userClothes);
         return outfitRepository.save(outfit);
     }
+
+    public void deleteOutfit(Long outfitId, Long userId) {
+        Outfit outfit = outfitRepository.findById(outfitId).orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
+        if (!outfit.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Cette tenue n'appartient pas à l'utilisateur.");
+        }
+        outfitRepository.delete(outfit);
+    }
 }
