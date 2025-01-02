@@ -49,11 +49,12 @@ public class OutfitLibController {
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Outfit> createOutfit(@RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
+    @PostMapping("/create/{userId}")
+        public ResponseEntity<Outfit> createOutfit(@RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
         Outfit outfit = outfitService.createOutfit(userId, outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(), outfitDTO.getName());
         return ResponseEntity.ok(outfit);
     }
+
 
     @PutMapping("/{id}/update")
     public ResponseEntity<Outfit> updateOutfit(@PathVariable Long id, @RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
