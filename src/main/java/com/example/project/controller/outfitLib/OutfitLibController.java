@@ -50,21 +50,34 @@ public class OutfitLibController {
     }
 
     @PostMapping("/create/{userId}")
-        public ResponseEntity<Outfit> createOutfit(@PathVariable Long userId, @RequestBody OutfitDTO outfitDTO) {
-        Outfit outfit = outfitService.createOutfit(userId, outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(), outfitDTO.getName());
+    public ResponseEntity<Outfit> createOutfit(@PathVariable Long userId, @RequestBody OutfitDTO outfitDTO) {
+        Outfit outfit = outfitService.createOutfit(
+            userId,
+            outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(),
+            outfitDTO.getName()
+        );
         return ResponseEntity.ok(outfit);
     }
 
 
-    @PutMapping("/{id}/update")
-    public ResponseEntity<Outfit> updateOutfit(@PathVariable Long id, @RequestParam Long userId, @RequestBody OutfitDTO outfitDTO) {
-        Outfit updatedOutfit = outfitService.updateOutfit(id, userId, outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(), outfitDTO.getName());
+    @PutMapping("/{id}/update/{userId}")
+    public ResponseEntity<Outfit> updateOutfit(
+            @PathVariable Long id,
+            @PathVariable Long userId,
+            @RequestBody OutfitDTO outfitDTO) {
+        Outfit updatedOutfit = outfitService.updateOutfit(
+            id,
+            userId,
+            outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(),
+            outfitDTO.getName()
+        );
         return ResponseEntity.ok(updatedOutfit);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOutfit(@PathVariable Long id, @RequestParam Long userId) {
+    @DeleteMapping("/{id}/{userId}")
+    public ResponseEntity<Void> deleteOutfit(@PathVariable Long id, @PathVariable Long userId) {
         outfitService.deleteOutfit(id, userId);
         return ResponseEntity.noContent().build();
     }
+
 }
