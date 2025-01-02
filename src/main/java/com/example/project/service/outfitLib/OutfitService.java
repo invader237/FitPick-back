@@ -33,8 +33,9 @@ public class OutfitService {
     }
 
     public List<Outfit> getOutfitsByUserId(Long userId) {
-        return outfitRepository.findByUserId(userId);
+        return outfitRepository.findAllByUserId(userId); 
     }
+
 
     public OutfitDTO getOutfitDetails(Long outfitId) {
         Outfit outfit = outfitRepository.findById(outfitId).orElse(null);
@@ -53,7 +54,6 @@ public class OutfitService {
         if (userClothes.size() != clothingIds.size()) {
             throw new IllegalArgumentException("Certains vêtements ne sont pas associés à cet utilisateur.");
         }
-
         Outfit outfit = new Outfit();
         outfit.setFit_lib(outfitName);
         outfit.setUserId(userId);
