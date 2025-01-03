@@ -1,16 +1,27 @@
 package com.example.project.service.clothingLib;
 
+import com.example.project.dto.clothingLib.ClothingDTO;
+import com.example.project.dto.clothingLib.TagDTO;
 import com.example.project.model.clothingLib.Clothing;
 import com.example.project.model.clothingLib.Tag;
 import com.example.project.repository.clothingLib.ClothingRepository;
 import com.example.project.repository.clothingLib.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Validated
 public class ClothingService {
+
+    private static final Logger log = LoggerFactory.getLogger(ClothingService.class);
 
     @Autowired
     private ClothingRepository clothingRepository;
@@ -19,118 +30,160 @@ public class ClothingService {
     private TagRepository tagRepository;
 
     /**
-     * Retrieve all clothing items associated with a specific user.
+     * Retrieves all clothing items for a specific user.
      *
-     * @param userId The ID of the user whose clothing items are to be retrieved.
-     * @return A list of {@link Clothing} objects belonging to the user.
+     * @param userId the ID of the user
+     * @return a list of ClothingDTO objects
      */
-    public List<Clothing> getClothingByUserId(Long userId) {
-        try {
-            return clothingRepository.findByUserId(userId);
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while retrieving clothing items for user ID " + userId, e);
+    public List<ClothingDTO> getClothingByUserId(@NotNull Long userId) {
+        log.debug("Fetching clothing for user ID: {}", userId);
+        return clothingRepository.findByUserId(userId).stream()
+                .map(this::mapToClothingDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a specific clothing item by user ID and clothing ID.
+     *
+     * @param userId the ID of the user
+     * @param cloId the ID of the clothing item
+     * @return the Clothing object
+     */
+    public Clothing getClothingById(@NotNull Long userId, @NotNull Long cloId) {
+        log.debug("Fetching clothing with userId={} and cloId={}", userId, cloId);
+        return Optional.ofNullable(clothingRepository.findByUserIdAndCloId(userId, cloId))
+                .orElseThrow(() -> {
+                    log.warn("No clothing found for userId={} and cloId={}", userId, cloId);
+                    return new IllegalArgumentException("Clothing not found with ID: " + cloId);
+                });
+    }
+
+    /**
+     * Retrieves the tags associated with a specific clothing item.
+     *
+     * @param clothingId the ID of the clothing item
+     * @return a list of TagDTO objects associated with the clothing
+     */
+    public List<TagDTO> getTagsForClothing(@NotNull Long clothingId) {
+        log.debug("Fetching tags for clothing ID: {}", clothingId);
+        Clothing clothing = clothingRepository.findById(clothingId)
+                .orElseThrow(() -> new IllegalArgumentException("Clothing not found with ID: " + clothingId));
+        return clothing.getTags().stream()
+                .map(TagDTO::mapToTagDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Adds a new clothing item with associated tags.
+     *
+     * @param clothingName the name of the clothing
+     * @param userId the ID of the user
+     * @param tagIds the list of tag IDs
+     * @param imageUrl the URL of the image
+     * @return the created ClothingDTO object
+     */
+    public ClothingDTO addClothingWithTags(@NotNull String clothingName, @NotNull Long userId, List<Long> tagIds, String imageUrl) {
+        validateClothingInput(clothingName, imageUrl);
+
+        log.debug("Fetching tags for IDs: {}", tagIds);
+        List<Tag> tags = tagRepository.findAllById(tagIds);
+        if (tags.size() != tagIds.size()) {
+            throw new IllegalArgumentException("Some tags were not found for IDs: " + tagIds);
         }
+
+        Clothing clothing = new Clothing(clothingName, userId, imageUrl, tags);
+        log.debug("Saving new clothing: {}", clothing);
+        return mapToClothingDTO(clothingRepository.save(clothing));
     }
 
     /**
-     * Retrieve a specific clothing item associated with a user by its ID.
+     * Updates an existing clothing item with new data.
      *
-     * @param userId The ID of the user who owns the clothing item.
-     * @param cloId  The ID of the clothing item to retrieve.
-     * @return The {@link Clothing} object with the given ID, or {@code null} if not found.
+     * @param clothingId the ID of the clothing item to update
+     * @param newName the new name of the clothing
+     * @param userId the ID of the user
+     * @param tagIds the list of new tag IDs
+     * @param imageUrl the new URL of the image
+     * @return the updated ClothingDTO object
      */
-    public Clothing getClothingById(Long userId, Long cloId) {
-        return clothingRepository.findByUserIdAndCloId(userId, cloId);
-    }
+    public ClothingDTO updateClothingWithTags(@NotNull Long clothingId, String newName, @NotNull Long userId, List<Long> tagIds, String imageUrl) {
+        log.debug("Fetching clothing with ID {} for update", clothingId);
+        Clothing clothing = clothingRepository.findById(clothingId)
+                .orElseThrow(() -> new IllegalArgumentException("Clothing not found with ID: " + clothingId));
 
-    /**
-     * Retrieve all tags associated with a specific clothing item owned by a user.
-     *
-     * @param userId The ID of the user who owns the clothing item.
-     * @param cloId  The ID of the clothing item whose tags are to be retrieved.
-     * @return A list of {@link Tag} objects associated with the specified clothing item.
-     * @throws IllegalArgumentException if the clothing item does not exist.
-     */
-    public List<Tag> getTagsByClothingId(Long userId, Long cloId) {
-        try {
-            Clothing clothing = getClothingById(userId, cloId);
-            return clothing.getTags();
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while retrieving tags for clothing item with ID " + cloId + " and user ID " + userId, e);
+        if (newName != null && !newName.trim().isEmpty()) {
+            clothing.setClo_lib(newName);
         }
-    }
 
-    /**
-     * Add a new clothing item to the database.
-     *
-     * @param clothingName The name of the clothing item.
-     * @param userId The ID of the user who owns the clothing.
-     * @param tagIds The IDs of the tags to associate with the clothing item.
-     * @return The newly added {@link Clothing} object.
-     */
-    public Clothing addClothingWithTags(String clothingName, Long userId, List<Long> tagIds) {
-        try {
+        if (tagIds != null && !tagIds.isEmpty()) {
+            log.debug("Fetching tags for IDs: {}", tagIds);
             List<Tag> tags = tagRepository.findAllById(tagIds);
             if (tags.size() != tagIds.size()) {
-                throw new IllegalArgumentException("Some tags could not be found with IDs: " + tagIds);
+                throw new IllegalArgumentException("Some tags were not found for IDs: " + tagIds);
             }
-
-            Clothing clothing = new Clothing();
-            clothing.setClo_lib(clothingName);
-            clothing.setUserId(userId);
             clothing.setTags(tags);
-
-            return clothingRepository.save(clothing);
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while adding the clothing with name " + clothingName + " for user ID " + userId, e);
         }
+
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            clothing.setCloImageUrl(imageUrl);
+        }
+
+        log.debug("Saving updated clothing: {}", clothing);
+        return mapToClothingDTO(clothingRepository.save(clothing));
     }
 
     /**
-     * Update an existing clothing item with new details and tags.
+     * Deletes a specific clothing item.
      *
-     * @param clothingId The ID of the clothing item to update.
-     * @param newName    The new name for the clothing item.
-     * @param userId     The ID of the user who owns the clothing item.
-     * @param tagIds     The IDs of the tags to associate with the clothing item.
-     * @return The updated {@link Clothing} object.
+     * @param userId the ID of the user
+     * @param cloId the ID of the clothing item
+     * @return the deleted ClothingDTO object
      */
-    public Clothing updateClothingWithTags(Long clothingId, String newName, Long userId, List<Long> tagIds) {
-        try {
-            Clothing clothing = clothingRepository.findById(clothingId)
-                    .orElseThrow(() -> new IllegalArgumentException("Clothing not found with ID: " + clothingId));
-
-            clothing.setClo_lib(newName);
-            clothing.setUserId(userId);
-
-            List<Tag> tags = tagRepository.findAllById(tagIds);
-            if (tags.isEmpty() && !tagIds.isEmpty()) {
-                throw new IllegalArgumentException("Some tags could not be found with IDs: " + tagIds);
-            }
-            clothing.setTags(tags);
-
-            return clothingRepository.save(clothing);
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while updating the clothing with ID " + clothingId + " for user ID " + userId, e);
+    public ClothingDTO deleteClothing(@NotNull Long userId, @NotNull Long cloId) {
+        log.debug("Fetching clothing with ID {} for deletion", cloId);
+        Clothing clothing = clothingRepository.findByUserIdAndCloId(userId, cloId);
+        if (clothing == null) {
+            throw new IllegalArgumentException("Clothing not found with ID: " + cloId);
         }
+        clothingRepository.delete(clothing);
+        log.info("Clothing deleted successfully: {}", clothing);
+        return mapToClothingDTO(clothing);
     }
 
     /**
-     * Delete a clothing item from the database.
+     * Maps a Clothing object to a ClothingDTO.
      *
-     * @param userId The ID of the user who owns the clothing item.
-     * @param cloId  The ID of the clothing item to delete.
-     * @return The {@link Clothing} object that was deleted, or throws an exception if not found.
-     * @throws IllegalArgumentException if the clothing item does not exist.
+     * @param clothing the Clothing object to map
+     * @return the mapped ClothingDTO object
      */
-    public Clothing deleteClothing(Long userId, Long cloId) {
-        try {
-            Clothing clothing = getClothingById(userId, cloId);
-            clothingRepository.delete(clothing);
-            return clothing;
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while deleting the clothing with ID " + cloId + " for user ID " + userId, e);
-        }
+    private ClothingDTO mapToClothingDTO(Clothing clothing) {
+        log.debug("Mapping clothing to DTO: {}", clothing);
+
+        return new ClothingDTO(
+            clothing.getClo_id(),
+            clothing.getClo_lib(),
+            clothing.getTags() != null
+            ? clothing.getTags().stream()
+                .map(TagDTO::mapToTagDTO)
+                .collect(Collectors.toList())
+            : List.of(),
+            clothing.getCloImageUrl()
+        );
     }
 
+    /**
+     * Validates input data for clothing.
+     *
+     * @param name the name of the clothing
+     * @param imageUrl the URL of the image
+     */
+    private void validateClothingInput(String name, String imageUrl) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Clothing name is required.");
+        }
+
+        if (imageUrl != null && !imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+            throw new IllegalArgumentException("Image URL must start with http:// or https://.");
+        }
+    }
 }
