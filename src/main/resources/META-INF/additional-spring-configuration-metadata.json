@@ -1,0 +1,77 @@
+{
+    "groups": [
+      {
+        "name": "openweathermap",
+        "type": "com.example.config.OpenWeatherMapConfig",
+        "description": "Configuration de l'API OpenWeatherMap."
+      },
+      {
+        "name": "jwt",
+        "type": "com.example.config.JwtConfig",
+        "description": "Configuration des paramètres JWT."
+      },
+      {
+        "name": "security",
+        "type": "com.example.config.SecurityConfig",
+        "description": "Configuration de la sécurité."
+      },
+      {
+        "name": "cors",
+        "type": "com.example.config.CorsConfig",
+        "description": "Configuration des paramètres CORS."
+      }
+    ],
+    "properties": [
+      {
+        "name": "openweathermap.api.key",
+        "type": "java.lang.String",
+        "description": "Clé API pour l'accès à OpenWeatherMap."
+      },
+      {
+        "name": "jwt.secret",
+        "type": "java.lang.String",
+        "description": "Clé secrète utilisée pour signer et vérifier les JWT."
+      },
+      {
+        "name": "jwt.expiration.auth",
+        "type": "java.lang.Long",
+        "description": "Durée d'expiration des tokens JWT pour l'authentification (en millisecondes)."
+      },
+      {
+        "name": "jwt.expiration.reset",
+        "type": "java.lang.Long",
+        "description": "Durée d'expiration des tokens JWT pour la réinitialisation (en millisecondes)."
+      },
+      {
+        "name": "security.password.encoder.strength",
+        "type": "java.lang.Integer",
+        "description": "Force de l'encodeur de mots de passe BCrypt."
+      },
+      {
+        "name": "cors.allowed.origins",
+        "type": "java.lang.String",
+        "description": "Origines autorisées pour les requêtes CORS (séparées par des virgules)."
+      },
+      {
+        "name": "cors.allowed.methods",
+        "type": "java.lang.String",
+        "description": "Méthodes HTTP autorisées pour les requêtes CORS (ex: GET, POST)."
+      },
+      {
+        "name": "cors.allowed.headers",
+        "type": "java.lang.String",
+        "description": "En-têtes HTTP autorisés pour les requêtes CORS."
+      },
+      {
+        "name": "cors.allow.credentials",
+        "type": "java.lang.Boolean",
+        "description": "Indique si les cookies sont autorisés pour les requêtes CORS."
+      },
+      {
+        "name": "security.server.salt",
+        "type": "java.lang.String",
+        "description": "Clé de sel utilisée pour la sécurité côté serveur."
+      }
+    ]
+  }
+  
