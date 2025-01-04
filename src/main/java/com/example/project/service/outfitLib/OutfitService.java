@@ -13,6 +13,7 @@ import com.example.project.dto.outfitLib.OutfitDTO;
 import com.example.project.dto.clothingLib.ClothingDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,24 +29,20 @@ public class OutfitService {
         return outfitRepository.findAll();
     }
 
-    public Outfit getOutfitById(Long outfitId) {
-        return outfitRepository.findById(outfitId).orElse(null);
+    public Optional<Outfit> getOutfitById(Long outfitId) {
+        return outfitRepository.findById(outfitId);
     }
 
     public List<Outfit> getOutfitsByUserId(Long userId) {
-        return outfitRepository.findAllByUserId(userId); 
+        return outfitRepository.findAllByUserId(userId);
     }
 
-
     public OutfitDTO getOutfitDetails(Long outfitId) {
-        Outfit outfit = outfitRepository.findById(outfitId).orElse(null);
+        Outfit outfit = outfitRepository.findDetailedOutfitById(outfitId);
         if (outfit == null) {
             return null;
         }
-
-        // Conversion des vêtements en DTO
         List<ClothingDTO> clothingDTOs = mapClothingListToDTO(outfit.getClothes());
-
         return new OutfitDTO(outfit.getFit_id(), outfit.getFit_lib(), clothingDTOs);
     }
 
@@ -63,7 +60,8 @@ public class OutfitService {
     }
 
     public Outfit updateOutfit(Long outfitId, Long userId, List<Long> clothingIds, String outfitName) {
-        Outfit outfit = outfitRepository.findById(outfitId).orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
+        Outfit outfit = outfitRepository.findById(outfitId)
+                .orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
         if (!outfit.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Cette tenue n'appartient pas à l'utilisateur.");
         }
@@ -80,17 +78,17 @@ public class OutfitService {
     }
 
     public void deleteOutfit(Long outfitId, Long userId) {
-        Outfit outfit = outfitRepository.findById(outfitId).orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
+        Outfit outfit = outfitRepository.findById(outfitId)
+                .orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
         if (!outfit.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Cette tenue n'appartient pas à l'utilisateur.");
         }
-
         outfitRepository.delete(outfit);
     }
 
     private List<ClothingDTO> mapClothingListToDTO(List<Clothing> clothingList) {
         return clothingList.stream()
-                .map(clothing -> new ClothingDTO(clothing.getClo_id(), clothing.getClo_lib(), null)) // Adaptez si des tags sont nécessaires
+                .map(clothing -> new ClothingDTO(clothing.getClo_id(), clothing.getClo_lib(), null))
                 .collect(Collectors.toList());
     }
 }
