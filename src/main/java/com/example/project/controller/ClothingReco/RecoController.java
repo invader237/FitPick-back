@@ -19,6 +19,11 @@ public class RecoController {
 
     @GetMapping("/{userId}")
     public void getReco(@PathVariable Long userId) {
+        System.out.println("\n\n");
+        System.out.println("=====================================");
+        System.out.println("GETTING RECOMMENDATIONS FOR USER: " + userId);
+        System.out.println("=====================================");
+        System.out.println("\n\n");
         recoService.getReco(userId);
     }
 
