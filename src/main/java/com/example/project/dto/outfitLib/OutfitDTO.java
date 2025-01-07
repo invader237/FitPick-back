@@ -10,10 +10,10 @@ import java.util.List;
 public class OutfitDTO {
     private Long id;
     private String name;
-    private List<Long> clothingList; // Doit être une List<Long>
+    private List<ClothingDTO> clothingList; // Doit être une List<Long>
 
     // Constructeurs, getters et setters
-    public OutfitDTO(Long id, String name, List<Long> clothingList) {
+    public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList) {
         this.id = id;
         this.name = name;
         this.clothingList = clothingList;
@@ -35,11 +35,11 @@ public class OutfitDTO {
         this.name = name;
     }
 
-    public List<Long> getClothingList() {
+    public List<ClothingDTO> getClothingList() {
         return clothingList;
     }
 
-    public void setClothingList(List<Long> clothingList) {
+    public void setClothingList(List<ClothingDTO> clothingList) {
         this.clothingList = clothingList;
     }
 }
