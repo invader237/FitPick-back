@@ -2,6 +2,7 @@ package com.example.project.controller.outfitLib;
 
 import com.example.project.model.outfitLib.Outfit;
 import com.example.project.dto.outfitLib.OutfitDTO;
+import com.example.project.dto.outfitLib.OutfitRequest;
 import com.example.project.dto.clothingLib.ClothingDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,31 +44,28 @@ public class OutfitLibController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<OutfitDTO> addOutfit(@RequestBody OutfitDTO request) {
+    public ResponseEntity<OutfitDTO> addOutfit(@RequestBody OutfitRequest request) {
+        System.out.println(request.getClothingList());
         OutfitDTO createdOutfit = outfitService.createOutfit(
-            request.getName(),
-            26L, 
-            request.getClothingList() 
+            25L,
+            request.getClothingList(),
+            request.getName()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOutfit);
     }
 
-
-    @PutMapping("/{id}/update/{userId}")
-    public ResponseEntity<Outfit> updateOutfit(
-            @PathVariable Long id,
-            @PathVariable Long userId,
-            @RequestBody @Valid OutfitDTO outfitDTO) {
-        Outfit updatedOutfit = outfitService.updateOutfit(
-                id,
-                userId,
-                outfitDTO.getClothingList(), // Transmettez la liste des identifiants directement
-                outfitDTO.getName()
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<OutfitDTO> updateOutfit(@PathVariable Long id, @RequestBody OutfitRequest request) {
+        OutfitDTO updatedOutfit = outfitService.updateOutfit(
+            id,
+            25L,
+            request.getClothingList(),
+            request.getName()
         );
         return ResponseEntity.ok(updatedOutfit);
     }
 
-    @DeleteMapping("/{id}/{userId}")
+    @DeleteMapping("/delete/{id}/{userId}")
     public ResponseEntity<Void> deleteOutfit(@PathVariable Long id, @PathVariable Long userId) {
         outfitService.deleteOutfit(id, userId);
         return ResponseEntity.noContent().build();

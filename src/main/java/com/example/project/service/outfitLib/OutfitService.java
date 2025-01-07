@@ -46,52 +46,44 @@ public class OutfitService {
         return new OutfitDTO(outfit.getFit_id(), outfit.getFit_lib(), clothingDTOs);
     }
 
-    public OutfitDTO createOutfit(String name, Long userId, List<Long> clothingIds) {
-        try {
-            // Récupérer les vêtements associés à l'utilisateur via leurs IDs
-            List<Clothing> userClothes = clothingRepository.findByUserIdAndCloIdIn(userId, clothingIds);
-
-            // Vérifier que tous les IDs fournis correspondent à des vêtements existants
-            if (userClothes.size() != clothingIds.size()) {
-                throw new IllegalArgumentException("Certains vêtements ne sont pas trouvés ou n'appartiennent pas à l'utilisateur : " + clothingIds);
-            }
-
-            // Créer une nouvelle tenue avec les vêtements récupérés
-            Outfit newOutfit = new Outfit();
-            newOutfit.setFit_lib(name);
-            newOutfit.setUserId(userId);
-            newOutfit.setClothes(userClothes);
-
-            // Sauvegarder la tenue
-            Outfit savedOutfit = outfitRepository.save(newOutfit);
-
-            // Retourner un DTO contenant les détails de la tenue créée
-            return new OutfitDTO(savedOutfit.getFit_id(), savedOutfit.getFit_lib(), clothingIds);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Une erreur est survenue lors de la création de la tenue avec le nom " + name + " pour l'utilisateur ID " + userId, e);
+    public OutfitDTO createOutfit(Long userId, List<Long> clothingIds, String outfitName) {
+        // Vérifie si les vêtements appartiennent à l'utilisateur
+        List<Clothing> userClothes = clothingRepository.findByUserIdAndCloIdIn(userId, clothingIds);
+        if (userClothes.size() != clothingIds.size()) {
+            throw new IllegalArgumentException("Certains vêtements ne sont pas associés à cet utilisateur.");
         }
+
+        // Crée la tenue avec les vêtements et le nom donnés
+        Outfit outfit = new Outfit();
+        outfit.setUserId(userId);
+        outfit.setFit_lib(outfitName);
+        outfit.setClothes(userClothes);
+
+        Outfit createdOutfit = outfitRepository.save(outfit);
+        List<ClothingDTO> clothingDTOs = mapClothingListToDTO(createdOutfit.getClothes());
+        return new OutfitDTO(createdOutfit.getFit_id(), createdOutfit.getFit_lib(), clothingDTOs);
     }
 
-    public Outfit updateOutfit(Long outfitId, Long userId, List<Long> clothingIds, String outfitName) {
-        // Vérifie si la tenue existe et appartient à l'utilisateur
+    public OutfitDTO updateOutfit(Long outfitId, Long userId, List<Long> clothingIds, String outfitName) {
         Outfit outfit = outfitRepository.findById(outfitId)
                 .orElseThrow(() -> new IllegalArgumentException("Tenue non trouvée."));
         if (!outfit.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Cette tenue n'appartient pas à l'utilisateur.");
         }
 
-        // Récupère les vêtements par leurs IDs
+        // Vérifie si les vêtements appartiennent à l'utilisateur
         List<Clothing> userClothes = clothingRepository.findByUserIdAndCloIdIn(userId, clothingIds);
         if (userClothes.size() != clothingIds.size()) {
             throw new IllegalArgumentException("Certains vêtements ne sont pas associés à cet utilisateur.");
         }
 
-        // Met à jour la tenue avec les nouveaux vêtements et le nouveau nom
+        // Met à jour la tenue avec les vêtements et le nom donnés
         outfit.setFit_lib(outfitName);
         outfit.setClothes(userClothes);
 
-        return outfitRepository.save(outfit);
+        Outfit updatedOutfit = outfitRepository.save(outfit);
+        List<ClothingDTO> clothingDTOs = mapClothingListToDTO(updatedOutfit.getClothes());
+        return new OutfitDTO(updatedOutfit.getFit_id(), updatedOutfit.getFit_lib(), clothingDTOs);
     }
 
     public void deleteOutfit(Long outfitId, Long userId) {
