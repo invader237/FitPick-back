@@ -42,17 +42,16 @@ public class OutfitLibController {
         return ResponseEntity.ok(outfitService.getOutfitsByUserId(userId));
     }
 
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<Outfit> createOutfit(
-            @PathVariable Long userId,
-            @RequestBody @Valid OutfitDTO outfitDTO) {
-        Outfit outfit = outfitService.createOutfit(
-                userId,
-                outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(),
-                outfitDTO.getName()
+    @PostMapping("/create")
+    public ResponseEntity<OutfitDTO> addOutfit(@RequestBody OutfitDTO request) {
+        OutfitDTO createdOutfit = outfitService.createOutfit(
+            request.getName(),
+            26L, 
+            request.getClothingList() 
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(outfit);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOutfit);
     }
+
 
     @PutMapping("/{id}/update/{userId}")
     public ResponseEntity<Outfit> updateOutfit(
@@ -62,7 +61,7 @@ public class OutfitLibController {
         Outfit updatedOutfit = outfitService.updateOutfit(
                 id,
                 userId,
-                outfitDTO.getClothingList().stream().map(ClothingDTO::getId).toList(),
+                outfitDTO.getClothingList(), // Transmettez la liste des identifiants directement
                 outfitDTO.getName()
         );
         return ResponseEntity.ok(updatedOutfit);
