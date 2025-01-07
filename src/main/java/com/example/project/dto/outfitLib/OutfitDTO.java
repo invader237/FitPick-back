@@ -8,20 +8,12 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public class OutfitDTO {
-
     private Long id;
-
-    @NotBlank(message = "Le nom de la tenue est obligatoire.")
     private String name;
+    private List<Long> clothingList; // Doit être une List<Long>
 
-    @NotNull(message = "La liste des vêtements ne peut pas être nulle.")
-    @Size(min = 4, max = 4, message = "Une tenue doit contenir exactement 4 vêtements.")
-    private List<ClothingDTO> clothingList;
-
-    public OutfitDTO() {
-    }
-
-    public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList) {
+    // Constructeurs, getters et setters
+    public OutfitDTO(Long id, String name, List<Long> clothingList) {
         this.id = id;
         this.name = name;
         this.clothingList = clothingList;
@@ -43,11 +35,12 @@ public class OutfitDTO {
         this.name = name;
     }
 
-    public List<ClothingDTO> getClothingList() {
+    public List<Long> getClothingList() {
         return clothingList;
     }
 
-    public void setClothingList(List<ClothingDTO> clothingList) {
+    public void setClothingList(List<Long> clothingList) {
         this.clothingList = clothingList;
     }
 }
+
