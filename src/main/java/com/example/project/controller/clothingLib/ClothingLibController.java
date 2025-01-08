@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.project.service.clothingLib.AwsS3Service;
+import com.example.project.service.AwsS3.AwsS3Service;
 import com.example.project.service.clothingLib.ClothingService;
 import com.example.project.dto.clothingLib.ClothingDTO;
 import com.example.project.dto.clothingLib.ClothingRequest;
@@ -226,8 +226,7 @@ public class ClothingLibController {
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             log.debug("Uploading image file: {}", file.getOriginalFilename());
-            String bucketName = "mon-projet-bucket";
-            String imageUrl = awsS3Service.uploadFile(file, bucketName);
+            String imageUrl = awsS3Service.uploadFile(file);
 
             log.info("Image uploaded successfully: {}", imageUrl);
             return ResponseEntity.ok(imageUrl);
