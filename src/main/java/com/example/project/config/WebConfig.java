@@ -19,7 +19,7 @@ public class WebConfig {
     @Value("${cors.allowed.methods:GET,POST,PUT,DELETE}")
     private String[] allowedMethods;
 
-    @Value("${cors.allowed.headers:*}")
+    @Value("${cors.allowed.headers:Authorization,Content-Type}")
     private String[] allowedHeaders;
 
     @Value("${cors.allow.credentials:true}")
