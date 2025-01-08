@@ -4,18 +4,20 @@ import jakarta.persistence.*;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * Represents a clothing item.
+ *
+ * Attributes:
+ * - `clo_id`: Unique identifier for the clothing item.
+ * - `clo_lib`: The name of the clothing item.
+ * - `tags`: A list of associated tags.
+ * - `userId`: The ID of the user who owns this clothing item.
+ * - `cloImageUrl`: URL of the image associated with the clothing item.
+ */
 @Entity
 @Table(name = "clothes")
 public class Clothing {
-    /**
-     * Represents a clothing item.
-     *
-     * Attributes:
-     * - `clo_id`: Unique identifier for the clothing item.
-     * - `clo_lib`: The name of the clothing item.
-     * - `tags`: A list of associated tags.
-     * - `userId`: The ID of the user who owns this clothing item.
-     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long clo_id;
@@ -35,9 +37,31 @@ public class Clothing {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "clo_image_url")
+    private String cloImageUrl;
+
+    /**
+     * Default constructor.
+     */
     public Clothing() {
     }
 
+    /**
+     * Constructor with all attributes.
+     *
+     * @param clo_lib the name of the clothing
+     * @param userId the ID of the user who owns the clothing
+     * @param cloImageUrl the URL of the clothing image
+     * @param tags the list of tags associated with the clothing
+     */
+    public Clothing(String clo_lib, Long userId, String cloImageUrl, List<Tag> tags) {
+        this.clo_lib = clo_lib;
+        this.userId = userId;
+        this.cloImageUrl = cloImageUrl;
+        this.tags = tags;
+    }
+
+    // Getters and setters
     public Long getClo_id() {
         return clo_id;
     }
@@ -70,6 +94,14 @@ public class Clothing {
         this.userId = userId;
     }
 
+    public String getCloImageUrl() {
+        return cloImageUrl;
+    }
+
+    public void setCloImageUrl(String cloImageUrl) {
+        this.cloImageUrl = cloImageUrl;
+    }
+
     @Override
     public String toString() {
         return "Clothing{" +
@@ -77,6 +109,7 @@ public class Clothing {
                 ", clo_lib='" + clo_lib + '\'' +
                 ", tags=" + tags +
                 ", userId=" + userId +
+                ", cloImageUrl='" + cloImageUrl + '\'' +
                 '}';
     }
 }
