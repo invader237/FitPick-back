@@ -12,6 +12,9 @@ import com.example.project.model.clothingLib.Clothing;
 import com.example.project.dto.outfitLib.OutfitDTO;
 import com.example.project.dto.clothingLib.ClothingDTO;
 
+import com.example.project.dto.clothingLib.TagDTO;
+import com.example.project.model.clothingLib.Tag;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -97,7 +100,13 @@ public class OutfitService {
 
     private List<ClothingDTO> mapClothingListToDTO(List<Clothing> clothingList) {
         return clothingList.stream()
-                .map(clothing -> new ClothingDTO(clothing.getClo_id(), clothing.getClo_lib(), null))
-                .collect(Collectors.toList());
+            .map(clothing -> new ClothingDTO(
+                clothing.getClo_id(),
+                clothing.getClo_lib(),
+                clothing.getTags().stream()
+                    .map(tag -> new TagDTO(tag.getTag_id(), tag.getTag_lib(), tag.getTag_temperature_score(), tag.getTag_wind_score(), tag.getTag_rain_score()))
+                    .collect(Collectors.toList()),
+                clothing.getCloImageUrl()))
+            .collect(Collectors.toList());
     }
 }
