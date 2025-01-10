@@ -125,12 +125,20 @@ public class OutfitLibController {
      * @param id the outfit ID
      * @return response status
      */
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Void> deleteOutfit(@PathVariable Long id) {
-        User currentUser = getCurrentUser();
-        log.info("Deleting outfit with ID: {} for user ID: {}", id, currentUser.getId());
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOutfit(@PathVariable("id") Long outfitId) {
+        User currentUser = getCurrentUser(); // Vérifie l'utilisateur
+        log.debug("Deleting outfit with ID: {}", outfitId);
 
-        outfitService.deleteOutfit(id, currentUser.getId());
-        return ResponseEntity.noContent().build();
+        try {
+            outfitService.deleteOutfit(outfitId, currentUser.getId());
+            return ResponseEntity.ok("Outfit deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            log.warn("Outfit not found or not owned by user.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Outfit not found.");
+        } catch (Exception e) {
+            log.error("Unexpected error during deletion.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete outfit.");
+        }
     }
 }
