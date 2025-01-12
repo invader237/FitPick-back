@@ -40,4 +40,8 @@ public interface ClothingRepository extends JpaRepository<Clothing, Long> {
      */
     @Query("SELECT c.tags FROM Clothing c WHERE c.userId = :userId AND c.clo_id = :cloId")
     List<Tag> findTagsByCloId(@Param("userId") Long userId, @Param("cloId") Long cloId);
+
+    @Query("SELECT c FROM Clothing c WHERE c.userId = :userId AND c.clo_id IN :cloIds")
+    List<Clothing> findByUserIdAndCloIdIn(@Param("userId") Long userId, @Param("cloIds") List<Long> cloIds);
+
 }
