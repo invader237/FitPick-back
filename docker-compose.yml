@@ -19,7 +19,6 @@ services:
       # Clés API tierces
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
       - SENDGRID_API_KEY=${SENDGRID_API_KEY}  # Clé API SendGrid
-
       # Configuration JWT
       - JWT_SECRET=${JWT_SECRET}             # Clé secrète JWT
       - JWT_EXPIRATION=${JWT_EXPIRATION}
