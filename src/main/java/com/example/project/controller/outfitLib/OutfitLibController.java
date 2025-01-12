@@ -1,6 +1,7 @@
 package com.example.project.controller.outfitLib;
 
 import com.example.project.model.outfitLib.Outfit;
+import com.example.project.dto.outfitLib.OutfitDisplay;
 import com.example.project.model.Authentification.User;
 import com.example.project.dto.outfitLib.OutfitDTO;
 import com.example.project.dto.outfitLib.OutfitRequest;
@@ -73,7 +74,7 @@ public class OutfitLibController {
      * @return list of outfits associated with the user
      */
     @GetMapping("/my-items")
-    public ResponseEntity<List<Outfit>> getOutfitsByUserId() {
+    public ResponseEntity<List<OutfitDisplay>> getOutfitsByUserId() {
         return ResponseEntity.ok(outfitService.getOutfitsByUserId(getCurrentUser().getId()));
     }
 

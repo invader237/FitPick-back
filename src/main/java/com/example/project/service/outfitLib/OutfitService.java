@@ -11,6 +11,7 @@ import com.example.project.model.clothingLib.Clothing;
 
 import com.example.project.dto.outfitLib.OutfitDTO;
 import com.example.project.dto.clothingLib.ClothingDTO;
+import com.example.project.dto.outfitLib.OutfitDisplay;
 
 import com.example.project.dto.clothingLib.TagDTO;
 import com.example.project.model.clothingLib.Tag;
@@ -31,8 +32,16 @@ public class OutfitService {
         return outfitRepository.findAll();
     }
 
-    public List<Outfit> getOutfitsByUserId(Long userId) {
-        return outfitRepository.findAllByUserId(userId);
+    public List<OutfitDisplay> getOutfitsByUserId(Long userId) {
+        List<Outfit> outfits = outfitRepository.findAllByUserId(userId);
+        return outfits.stream()
+            .map(outfit -> new OutfitDisplay(
+                outfit.getFit_id(),
+                outfit.getFit_lib(),
+                outfit.getClothes().stream()
+                    .map(Clothing::getCloImageUrl)
+                    .collect(Collectors.toList())))
+            .collect(Collectors.toList());
     }
 
     public OutfitDTO getOutfitDetails(Long outfitId) {
