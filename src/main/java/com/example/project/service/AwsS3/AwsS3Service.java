@@ -1,4 +1,4 @@
-package com.example.project.service.clothingLib;
+package com.example.project.service.AwsS3;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,9 @@ public class AwsS3Service {
     @Value("${aws.region}")
     private String region;
 
+    @Value("${aws.s3.bucket:mon-projet-bucket}")
+    private String bucketName;
+
     /**
      * Constructeur pour injecter les dépendances nécessaires.
      *
@@ -34,13 +37,12 @@ public class AwsS3Service {
     /**
      * Télécharge un fichier vers un bucket S3 et retourne l'URL publique du fichier téléchargé.
      *
-     * @param file       Le fichier à télécharger.
-     * @param bucketName Le nom du bucket où le fichier sera stocké.
+     * @param file Le fichier à télécharger.
      * @return L'URL publique du fichier téléchargé.
      * @throws IOException Si une erreur survient lors de la lecture des données du fichier.
      */
-    public String uploadFile(MultipartFile file, String bucketName) throws IOException {
-        validateFileInput(file, bucketName);
+    public String uploadFile(MultipartFile file) throws IOException {
+        validateFileInput(file);
 
         // Génération d'un nom unique pour le fichier à l'aide d'un UUID
         String fileName = generateUniqueFileName(file.getOriginalFilename());
@@ -63,21 +65,17 @@ public class AwsS3Service {
         }
 
         // Génération de l'URL publique du fichier
-        return generateFileUrl(bucketName, fileName);
+        return generateFileUrl(fileName);
     }
 
     /**
-     * Valide les entrées du fichier et du bucket.
+     * Valide les entrées du fichier.
      *
-     * @param file       Le fichier à valider.
-     * @param bucketName Le nom du bucket à valider.
+     * @param file Le fichier à valider.
      */
-    private void validateFileInput(MultipartFile file, String bucketName) {
+    private void validateFileInput(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Le fichier est vide ou non valide.");
-        }
-        if (bucketName == null || bucketName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Le nom du bucket est requis.");
         }
     }
 
@@ -92,13 +90,12 @@ public class AwsS3Service {
     }
 
     /**
-     * Génère l'URL publique du fichier basé sur le bucket, la région et le nom du fichier.
+     * Génère l'URL publique du fichier basé sur le nom du bucket, la région et le nom du fichier.
      *
-     * @param bucketName Le nom du bucket S3.
-     * @param fileName   Le nom du fichier stocké dans le bucket.
+     * @param fileName Le nom du fichier stocké dans le bucket.
      * @return L'URL publique complète permettant d'accéder au fichier.
      */
-    private String generateFileUrl(String bucketName, String fileName) {
+    private String generateFileUrl(String fileName) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
     }
 }

@@ -4,6 +4,7 @@ import com.example.project.service.Authentification.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,6 +16,9 @@ import jakarta.validation.constraints.NotEmpty;
 @RestController
 @RequestMapping("/api/email")
 public class EmailController {
+
+    @Value("${cors.allowed.origins}")
+    private String allowedOrigins;
 
     private final EmailService emailService;
 
@@ -38,7 +42,7 @@ public class EmailController {
             @RequestParam @NotEmpty @Email String to) {
         try {
             // Lien fictif pour le test
-            String resetLink = "http://localhost:3000/reset-password?token=exampleToken123";
+            String resetLink = allowedOrigins + "/reset-password?token=exampleToken123";
 
             // Envoi de l'email via le service
             emailService.sendResetPasswordEmail(to, resetLink);

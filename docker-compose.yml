@@ -27,6 +27,7 @@ services:
 
       # Sécurité
       - SECURITY_SALT=${SECURITY_SALT}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
 
       # Configuration AWS S3
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
