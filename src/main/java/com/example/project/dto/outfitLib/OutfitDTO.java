@@ -11,12 +11,23 @@ public class OutfitDTO {
     private Long id;
     private String name;
     private List<ClothingDTO> clothingList; // Doit être une List<Long>
+    private Long userId;
 
     // Constructeurs, getters et setters
     public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList) {
         this.id = id;
         this.name = name;
         this.clothingList = clothingList;
+    }
+
+    public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList, Long userId) {
+        this.id = id;
+        this.name = name;
+        this.clothingList = clothingList;
+        this.userId = userId;
+    }
+
+    public OutfitDTO() {
     }
 
     public Long getId() {
@@ -41,6 +52,14 @@ public class OutfitDTO {
 
     public void setClothingList(List<ClothingDTO> clothingList) {
         this.clothingList = clothingList;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
 

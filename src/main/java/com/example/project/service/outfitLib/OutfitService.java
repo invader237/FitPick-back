@@ -16,7 +16,6 @@ import com.example.project.dto.clothingLib.TagDTO;
 import com.example.project.model.clothingLib.Tag;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,10 +31,6 @@ public class OutfitService {
         return outfitRepository.findAll();
     }
 
-    public Optional<Outfit> getOutfitById(Long outfitId) {
-        return outfitRepository.findById(outfitId);
-    }
-
     public List<Outfit> getOutfitsByUserId(Long userId) {
         return outfitRepository.findAllByUserId(userId);
     }
@@ -46,7 +41,7 @@ public class OutfitService {
             return null;
         }
         List<ClothingDTO> clothingDTOs = mapClothingListToDTO(outfit.getClothes());
-        return new OutfitDTO(outfit.getFit_id(), outfit.getFit_lib(), clothingDTOs);
+        return new OutfitDTO(outfit.getFit_id(), outfit.getFit_lib(), clothingDTOs, outfit.getUserId());
     }
 
     public OutfitDTO createOutfit(Long userId, List<Long> clothingIds, String outfitName) {

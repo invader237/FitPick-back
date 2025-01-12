@@ -55,17 +55,15 @@ public class OutfitLibController {
      * @return the requested outfit
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Outfit> getOutfitById(@PathVariable Long id) {
+    public ResponseEntity<OutfitDTO> getOutfitById(@PathVariable Long id) {
         User currentUser = getCurrentUser();
-        Outfit outfit = outfitService.getOutfitById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Outfit not found"));
+        OutfitDTO outfit = outfitService.getOutfitDetails(id);
 
         if (!outfit.getUserId().equals(currentUser.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view this outfit");
         }
 
         return ResponseEntity.ok(outfit);
-
     }
 
     /**
