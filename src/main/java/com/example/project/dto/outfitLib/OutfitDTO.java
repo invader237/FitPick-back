@@ -1,0 +1,65 @@
+package com.example.project.dto.outfitLib;
+
+import com.example.project.dto.clothingLib.ClothingDTO;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.util.List;
+
+public class OutfitDTO {
+    private Long id;
+    private String name;
+    private List<ClothingDTO> clothingList; // Doit être une List<Long>
+    private Long userId;
+
+    // Constructeurs, getters et setters
+    public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList) {
+        this.id = id;
+        this.name = name;
+        this.clothingList = clothingList;
+    }
+
+    public OutfitDTO(Long id, String name, List<ClothingDTO> clothingList, Long userId) {
+        this.id = id;
+        this.name = name;
+        this.clothingList = clothingList;
+        this.userId = userId;
+    }
+
+    public OutfitDTO() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ClothingDTO> getClothingList() {
+        return clothingList;
+    }
+
+    public void setClothingList(List<ClothingDTO> clothingList) {
+        this.clothingList = clothingList;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+}
+

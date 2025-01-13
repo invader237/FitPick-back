@@ -39,11 +39,15 @@ public class SecurityConfig {
         http
             // Désactiver CSRF car nous utilisons des tokens JWT
             .csrf(csrf -> csrf.disable())
-    
+            
+            // Gestion des CORS (déléguée à WebConfig)
+            .cors(cors -> {}) 
+
             // Gestion des autorisations
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/public/**", "/api/auth/**", "/api/weather/**", "/api/clothing/**" /* temporaire */, "/api/tags/**" /* temporaire */ , "/api/reco/**").permitAll() // Endpoints publics
-                .anyRequest().authenticated() // Toute autre requête doit être authentifiée
+                .requestMatchers( "/api/auth/**", "/api/weather/**").permitAll()
+                .requestMatchers("/api/profile/**","/api/clothing/**", "/api/tags/**", "/api/outfits/**").authenticated() // Les endpoints profile nécessitent une authentification
+                .anyRequest().authenticated()
             )
     
             // Gestion des exceptions
@@ -60,7 +64,6 @@ public class SecurityConfig {
         return http.build();
     }
     
-
     /**
      * Gestionnaire des réponses en cas d'accès non autorisé.
      *

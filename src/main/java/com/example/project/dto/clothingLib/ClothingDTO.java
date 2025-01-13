@@ -3,32 +3,32 @@ package com.example.project.dto.clothingLib;
 import java.util.List;
 
 public class ClothingDTO {
-    private Long id;
-    private String name;
-    private List<TagDTO> tags;
+    private Long cloId;
+    private String cloLib;
+    private List<TagDTO> tags; // Utilisation de TagDTO pour ne pas exposer l'entité directement
+    private String cloImageUrl;
 
-    // Constructor
-    public ClothingDTO(Long id, String name, List<TagDTO> tags) {
-        this.id = id;
-        this.name = name;
+    public ClothingDTO(Long cloId, String cloLib, List<TagDTO> tags, String cloImageUrl) {
+        this.cloId = cloId;
+        this.cloLib = cloLib;
         this.tags = tags;
+        this.cloImageUrl = cloImageUrl;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public Long getCloId() {
+        return cloId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCloId(Long cloId) {
+        this.cloId = cloId;
     }
 
-    public String getName() {
-        return name;
+    public String getCloLib() {
+        return cloLib;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCloLib(String cloLib) {
+        this.cloLib = cloLib;
     }
 
     public List<TagDTO> getTags() {
@@ -39,12 +39,11 @@ public class ClothingDTO {
         this.tags = tags;
     }
 
-    @Override
-    public String toString() {
-        return "ClothingDTO{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", tags=" + tags +
-                '}';
+    public String getCloImageUrl() {
+        return cloImageUrl;
+    }
+
+    public void setCloImageUrl(String cloImageUrl) {
+        this.cloImageUrl = cloImageUrl;
     }
 }

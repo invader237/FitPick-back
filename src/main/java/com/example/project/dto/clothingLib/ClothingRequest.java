@@ -1,29 +1,30 @@
 package com.example.project.dto.clothingLib;
 
-import java.util.List; 
-
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class ClothingRequest {
-    /**
-     * Represents a request to create a new clothing item.
-     *
-     * Attributes:
-     * - `name`: The name of the clothing item.
-     * - `userId`: The ID of the user who owns the clothing item.
-     * - `tagIds`: A list of tag IDs associated with the clothing item.
-     */
 
+    @NotEmpty(message = "Le nom est obligatoire.")
     private String name;
+
+    @NotNull(message = "L'ID utilisateur est obligatoire.")
     private Long userId;
+
+    @NotEmpty(message = "Au moins un tag est requis.")
     private List<Long> tagIds;
+
+    private String imageUrl; // Champ pour l'URL de l'image
 
     public ClothingRequest() {
     }
 
-    public ClothingRequest(String name, Long userId, List<Long> tagIds) {
+    public ClothingRequest(String name, Long userId, List<Long> tagIds, String imageUrl) {
         this.name = name;
         this.userId = userId;
         this.tagIds = tagIds;
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -48,5 +49,23 @@ public class ClothingRequest {
 
     public void setTagIds(List<Long> tagIds) {
         this.tagIds = tagIds;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "ClothingRequest{" +
+                "name='" + name + '\'' +
+                ", userId=" + userId +
+                ", tagIds=" + tagIds +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
     }
 }

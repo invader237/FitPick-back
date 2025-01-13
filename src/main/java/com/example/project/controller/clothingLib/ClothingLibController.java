@@ -3,201 +3,236 @@ package com.example.project.controller.clothingLib;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.project.service.AwsS3.AwsS3Service;
 import com.example.project.service.clothingLib.ClothingService;
-import com.example.project.model.clothingLib.Clothing;
-import com.example.project.model.clothingLib.Tag;
+import com.example.project.dto.clothingLib.ClothingDTO;
 import com.example.project.dto.clothingLib.ClothingRequest;
+import com.example.project.dto.clothingLib.TagDTO;
+import com.example.project.model.Authentification.User;
+import com.example.project.model.clothingLib.Clothing;
+import com.example.project.repository.Authentification.UserRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * REST Controller for managing clothing-related operations.
+ * Provides endpoints for creating, retrieving, updating, and deleting clothing items,
+ * as well as uploading images to AWS S3.
+ */
 @RestController
 @RequestMapping("/api/clothing")
+@Validated
 public class ClothingLibController {
+
+    private static final Logger log = LoggerFactory.getLogger(ClothingLibController.class);
 
     @Autowired
     private ClothingService clothingService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AwsS3Service awsS3Service;
+
     /**
-     * Get all clothing items for a specific user.
-     * Example: GET http://localhost:8080/api/clothing/user/{userId}
+     * Retrieves the currently authenticated user.
      *
-     * @param userId the ID of the user.
-     * @return List of clothing items belonging to the user, or an appropriate error response.
+     * @return the authenticated User object
+     * @throws ResponseStatusException if the user is not authenticated or not found
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getClothingByUserId(@PathVariable("userId") Long userId) {
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.debug("Authenticating user with email: {}", email);
+
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
+
+    /**
+     * Retrieves all clothing items for the currently authenticated user.
+     *
+     * @return a list of ClothingDTO objects
+     */
+    @GetMapping("/my-items")
+    public ResponseEntity<List<ClothingDTO>> getClothingForCurrentUser() {
         try {
-            List<Clothing> clothingList = clothingService.getClothingByUserId(userId);
+            User currentUser = getCurrentUser();
+            log.debug("Fetching clothing items for user ID: {}", currentUser.getId());
 
-            if (clothingList.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body("No clothing items found for user ID " + userId);
-            }
+            List<ClothingDTO> clothingDtoList = clothingService.getClothingByUserId(currentUser.getId());
 
-            return ResponseEntity.ok(clothingList);
+            log.info("Returning {} clothing items.", clothingDtoList.size());
+            return ResponseEntity.ok(clothingDtoList);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while retrieving clothing items for user ID " + userId);
+            log.error("Error retrieving clothing items: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * Get all tags for a specific clothing item of a user.
-     * Example: GET http://localhost:8080/api/clothing/user/{userId}/item/{clothingId}/tags
+     * Retrieves a specific clothing item by its ID for the authenticated user.
      *
-     * @param userId the ID of the user.
-     * @param clothingId the ID of the clothing item.
-     * @return List of tags for the clothing item, or an error response if not found.
+     * @param clothingId the ID of the clothing item to retrieve
+     * @return the Clothing object
      */
-    @GetMapping("/user/{userId}/item/{clothingId}/tags")
-    public ResponseEntity<?> getTagsByClothingId(
-            @PathVariable("userId") Long userId,
-            @PathVariable("clothingId") Long clothingId
-    ) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Clothing> fetchClothingById(@PathVariable("id") Long clothingId) {
+        log.debug("Received request for clothing with ID: {}", clothingId);
+
+        User currentUser = getCurrentUser();
+        log.debug("Authenticated user ID: {}", currentUser.getId());
+
         try {
-            List<Tag> tags = clothingService.getTagsByClothingId(userId, clothingId);
+            Clothing clothing = clothingService.getClothingById(currentUser.getId(), clothingId);
+            log.info("Clothing item retrieved successfully: {}", clothing);
+            return ResponseEntity.ok(clothing);
+        } catch (IllegalArgumentException e) {
+            log.warn("Clothing not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
-            if (tags.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                        .body("No tags found for clothing item with ID " + clothingId + " owned by user ID " + userId);
-            }
-
+    /**
+     * Retrieves the tags associated with a specific clothing item.
+     *
+     * @param clothingId the ID of the clothing item
+     * @return a list of TagDTO objects associated with the clothing
+     */
+    @GetMapping("/{id}/tags")
+    public ResponseEntity<List<TagDTO>> getTagsForClothing(@PathVariable("id") Long clothingId) {
+        try {
+            log.debug("Fetching tags for clothing ID: {}", clothingId);
+            List<TagDTO> tags = clothingService.getTagsForClothing(clothingId);
             return ResponseEntity.ok(tags);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            log.warn("Clothing not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while retrieving tags for the clothing item.");
+            log.error("Unexpected error while fetching tags: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * Get details of a specific clothing item for a user along with its associated tags.
-     * Example: GET http://localhost:8080/api/clothing/user/{userId}/item/{clothingId}
+     * Adds a new clothing item for the authenticated user.
      *
-     * @param userId the ID of the user.
-     * @param clothingId the ID of the clothing item.
-     * @return The clothing item details, including its tags.
+     * @param request the ClothingRequest containing the clothing details
+     * @return the created ClothingDTO object
      */
-    @GetMapping("/user/{userId}/item/{clothingId}")
-    public ResponseEntity<?> getClothingById(
-            @PathVariable("userId") Long userId,
-            @PathVariable("clothingId") Long clothingId
-    ) {
+    @PostMapping
+    public ResponseEntity<ClothingDTO> addClothing(@RequestBody @Validated ClothingRequest request) {
         try {
-            Clothing clothing = clothingService.getClothingById(userId, clothingId);
+            User currentUser = getCurrentUser();
+            log.debug("Adding new clothing for user ID: {}", currentUser.getId());
 
-            if (clothing == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Clothing item not found for user ID " + userId + " and clothing ID " + clothingId);
-            }
-
-            List<Tag> tags = clothingService.getTagsByClothingId(userId, clothingId);
-            Map<String, Object> response = new HashMap<>();
-            response.put("clothing", clothing);
-            response.put("tags", tags);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while retrieving the clothing item.");
-        }
-    }
-
-    /**
-     * Add a new clothing item with tags for a user.
-     * Example: POST http://localhost:8080/api/clothing/user/{userId}/add
-     * Request body:
-     * {
-     *     "name": "Jacket",
-     *     "tagIds": [1, 2, 3]
-     * }
-     *
-     * @param userId the ID of the user.
-     * @param request the clothing item details.
-     * @return A response indicating the result of the addition.
-     */
-    @PostMapping("/user/{userId}/add")
-    public ResponseEntity<?> addClothing(
-            @PathVariable("userId") Long userId,
-            @RequestBody ClothingRequest request
-    ) {
-        try {
-            Clothing clothing = clothingService.addClothingWithTags(
+            ClothingDTO clothingDto = clothingService.addClothingWithTags(
                 request.getName(),
-                userId,
-                request.getTagIds()
+                currentUser.getId(),
+                request.getTagIds(),
+                request.getImageUrl()
             );
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(clothing);
+            log.info("New clothing added: {}", clothingDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(clothingDto);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            log.warn("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the clothing.");
+            log.error("Error adding clothing: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     /**
-     * Update an existing clothing item with new details and tags.
-     * Example: PUT http://localhost:8080/api/clothing/user/{userId}/{id}
-     * Request body:
-     * {
-     *     "name": "New Jacket",
-     *     "tagIds": [4, 5]
-     * }
+     * Updates an existing clothing item for the authenticated user.
      *
-     * @param userId the ID of the user.
-     * @param clothingId the ID of the clothing item.
-     * @param request the new clothing item details.
-     * @return A response indicating the result of the update operation.
+     * @param clothingId the ID of the clothing item to update
+     * @param request the ClothingRequest containing updated clothing details
+     * @return the updated ClothingDTO object
      */
-    @PutMapping("/user/{userId}/{id}")
-    public ResponseEntity<String> updateClothing(
-            @PathVariable("userId") Long userId,
+    @PutMapping("/{id}/update")
+    public ResponseEntity<ClothingDTO> updateClothing(
             @PathVariable("id") Long clothingId,
-            @RequestBody ClothingRequest request
+            @RequestBody @Validated ClothingRequest request
     ) {
         try {
-            Clothing updatedClothing = clothingService.updateClothingWithTags(
+            User currentUser = getCurrentUser();
+            log.debug("Updating clothing with ID: {} for user ID: {}", clothingId, currentUser.getId());
+    
+            ClothingDTO updatedClothing = clothingService.updateClothingWithTags(
                 clothingId,
                 request.getName(),
-                userId,
-                request.getTagIds()
+                currentUser.getId(),
+                request.getTagIds(),
+                request.getImageUrl()
             );
-
-            return ResponseEntity.ok("Clothing '" + updatedClothing.getClo_lib() + "' updated successfully.");
+    
+            log.info("Clothing updated successfully: {}", updatedClothing);
+            return ResponseEntity.ok(updatedClothing);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            log.warn("Error updating clothing: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the clothing.");
+            log.error("Unexpected error during update: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-    }
+    }    
 
     /**
-     * Delete a clothing item for a user.
-     * Example: DELETE http://localhost:8080/api/clothing/user/{userId}/{id}/delete
+     * Deletes a specific clothing item for the authenticated user.
      *
-     * @param userId the ID of the user.
-     * @param clothingId the ID of the clothing item.
-     * @return A response indicating the result of the deletion.
+     * @param clothingId the ID of the clothing item to delete
+     * @return a success message if the deletion is successful
      */
-    @DeleteMapping("/user/{userId}/{id}/delete")
-    public ResponseEntity<String> deleteClothing(
-            @PathVariable("userId") Long userId,
-            @PathVariable("id") Long clothingId
-    ) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteClothing(@PathVariable("id") Long clothingId) {
         try {
-            Clothing deletedClothing = clothingService.deleteClothing(userId, clothingId);
-            return ResponseEntity.ok("Clothing '" + deletedClothing.getClo_lib() + "' deleted successfully.");
+            User currentUser = getCurrentUser();
+            log.debug("Deleting clothing with ID: {} for user ID: {}", clothingId, currentUser.getId());
+
+            clothingService.deleteClothing(currentUser.getId(), clothingId);
+
+            log.info("Clothing deleted successfully.");
+            return ResponseEntity.ok("Clothing deleted successfully.");
         } catch (IllegalArgumentException e) {
+            log.warn("Error deleting clothing: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
+            log.error("Unexpected error during deletion: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the clothing.");
         }
     }
 
+    /**
+     * Uploads an image to AWS S3 and returns the image URL.
+     *
+     * @param file the image file to upload
+     * @return the URL of the uploaded image
+     */
+    @PostMapping("/upload-image")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            log.debug("Uploading image file: {}", file.getOriginalFilename());
+            String imageUrl = awsS3Service.uploadFile(file);
+
+            log.info("Image uploaded successfully: {}", imageUrl);
+            return ResponseEntity.ok(imageUrl);
+        } catch (Exception e) {
+            log.error("Error occurred while uploading image: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while uploading the image.");
+        }
+    }
 }

@@ -8,11 +8,30 @@ services:
     networks:
       - spring-network
     environment:
+      # Profil Spring actif
       - SPRING_PROFILES_ACTIVE=prod
+      
+      # Variables pour la base de données
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
+      
+      # Clés API tierces
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}  # Clé API SendGrid
+      # Configuration JWT
+      - JWT_SECRET=${JWT_SECRET}             # Clé secrète JWT
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - JWT_EXPIRATION_AUTH=${JWT_EXPIRATION_AUTH}
+      - JWT_EXPIRATION_RESET=${JWT_EXPIRATION_RESET} # Expiration des tokens reset
 
+      # Sécurité
+      - SECURITY_SALT=${SECURITY_SALT}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+
+      # Configuration AWS S3
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
 networks:
   spring-network:

@@ -12,6 +12,7 @@ import com.example.project.service.Authentification.EmailService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
+
+    @Value("${cors.allowed.origins}")
+    private String allowedOrigins;
 
     private final AuthService authService;
     private final EmailService emailService;
@@ -137,7 +141,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Veuillez attendre avant de demander un autre lien.");
             }
             String resetToken = authService.generateResetToken(email);
-            String resetLink = "http://localhost:3000/reset-password?token=" + resetToken;
+            String resetLink = allowedOrigins + "/reset-password?token=" + resetToken;
             emailService.sendResetPasswordEmail(email, resetLink);
             return ResponseEntity.ok("Un email de réinitialisation a été envoyé.");
         } catch (RuntimeException e) {
