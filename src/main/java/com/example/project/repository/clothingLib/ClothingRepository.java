@@ -51,4 +51,14 @@ public interface ClothingRepository extends JpaRepository<Clothing, Long> {
     @Query("SELECT c FROM Clothing c WHERE c.userId = :userId AND c.clo_id IN :cloIds")
     List<Clothing> findByUserIdAndCloIdIn(@Param("userId") Long userId, @Param("cloIds") List<Long> cloIds);
 
+    /**
+     * Retrieves all clothing items associated with a specific tag for a given user.
+     *
+     * @param tagId the ID of the tag to search for
+     * @param userId the ID of the user whose clothing items are being retrieved
+     * @return a list of {@link Clothing} objects associated with the tag
+     */
+    @Query("SELECT c FROM Clothing c JOIN c.tags t WHERE t.tag_id = :tagId AND c.userId = :userId")
+    List<Clothing> findByTagAndUserId(@Param("tagId") Long tagId, @Param("userId") Long userId);
+
 }
