@@ -27,6 +27,12 @@ public class OutfitDTO {
         this.userId = userId;
     }
 
+    public OutfitDTO(String name, List<ClothingDTO> clothingList) {
+        this.name = name;
+        this.clothingList = clothingList;
+        this.userId = userId;
+    }
+
     public OutfitDTO() {
     }
 

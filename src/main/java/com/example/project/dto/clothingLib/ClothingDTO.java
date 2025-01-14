@@ -15,6 +15,12 @@ public class ClothingDTO {
         this.cloImageUrl = cloImageUrl;
     }
 
+    public ClothingDTO(Long cloId, String cloLib, List<TagDTO> tags) {
+        this.cloId = cloId;
+        this.cloLib = cloLib;
+        this.tags = tags;
+    }
+
     public Long getCloId() {
         return cloId;
     }

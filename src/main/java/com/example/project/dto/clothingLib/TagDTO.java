@@ -23,6 +23,11 @@ public class TagDTO {
         this.tagRainScore = tagRainScore;
     }
 
+    public TagDTO(Long tagId, String tagLib) {
+        this.tagId = tagId;
+        this.tagLib = tagLib;
+    }
+
     public Long getTagId() {
         return tagId;
     }
