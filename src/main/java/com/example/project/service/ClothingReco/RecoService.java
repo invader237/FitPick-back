@@ -2,6 +2,7 @@ package com.example.project.service.ClothingReco;
 
 import com.example.project.dto.ClothingReco.WeatherRecoDTO;
 import com.example.project.model.Weather.WeatherResponse;
+import com.example.project.service.Weather.WeatherService;
 import com.example.project.dto.clothingLib.ClothingDTO;
 import org.springframework.stereotype.Service;
 import com.example.project.repository.clothingLib.ClothingRepository;
@@ -9,6 +10,8 @@ import com.example.project.repository.clothingLib.TagRepository;
 import com.example.project.model.clothingLib.Tag;
 import com.example.project.model.clothingLib.Clothing;
 import com.example.project.dto.clothingLib.TagDTO;
+import com.example.project.dto.outfitLib.OutfitDTO;
+import com.example.project.dto.outfitLib.OutfitDisplay;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 
@@ -22,6 +25,9 @@ import java.util.List;
 
 @Service
 public class RecoService {
+
+    @Autowired
+    private WeatherService weatherService;
 
     @Autowired
     private TagRepository tagRepository;
@@ -55,7 +61,7 @@ public class RecoService {
     public void getWeatherRecoData(WeatherResponse weather) {
 
         int humidity = weather.getMain().getHumidity(); 
-        int rain = getRainIndex(weather.getRain().getOneHour()); 
+        int rain = 0;//getRainIndex(weather.getRain().getOneHour()); 
         int temperature = getTempIndex(weather.getMain().getTemp()); 
         int wind = getWindIndex(weather.getWind().getSpeed()); 
 
@@ -81,20 +87,9 @@ public class RecoService {
         return (int) (wind * 10);
     }
 
-    public List<ClothingDTO> getReco(Long userId) {
+    public OutfitDTO getReco(Long userId) {
         // Exemple de données météorologiques simulées
-        WeatherResponse weather = new WeatherResponse();
-        weather.setMain(new Main() {{
-            setHumidity(100);
-            setTemp(0);
-            //41 pour t-shirt
-        }});
-        weather.setRain(new Rain() {{
-            setOneHour(0);
-        }});
-        weather.setWind(new Wind() {{
-            setSpeed(0);
-        }});
+        WeatherResponse weather = weatherService.getWeather(49.119308, 6.175715);
 
         getWeatherRecoData(weather); // Récupérer les données de recommandation météorologique
 
@@ -112,7 +107,8 @@ public class RecoService {
         System.out.println("Recommandations complètes générées.");
         System.out.println("-------------------------------------");
 
-        return outfit;
+        OutfitDTO recoOutfit = new OutfitDTO( null, "Recommandation météo", outfit);
+        return recoOutfit;
     }
 
     // Étape 1 : Recommander un t-shirt
@@ -123,7 +119,7 @@ public class RecoService {
 
         if (tshirts.isEmpty()) {
             System.out.println("Aucun t-shirt trouvé.");
-            return List.of(new ClothingDTO(null, "T-shirt indisponible", new ArrayList<>()));
+            throw new RuntimeException("Aucun t-shirt trouvé.");
         } else {
             Clothing baseTshirt = tshirts.get(0);
             // Afficher le t-shirt recommandé
@@ -133,7 +129,8 @@ public class RecoService {
                 baseTshirt.getClo_lib(),
                 baseTshirt.getTags().stream()
                     .map(tag -> new TagDTO(tag.getTag_id(), tag.getTag_lib()))
-                    .collect(Collectors.toList())
+                    .collect(Collectors.toList()),
+                baseTshirt.getCloImageUrl()
             ));
         }
     }
@@ -163,7 +160,8 @@ public class RecoService {
                 bottom.getClo_lib(),
                 bottom.getTags().stream()
                     .map(tag -> new TagDTO(tag.getTag_id(), tag.getTag_lib()))
-                    .collect(Collectors.toList())
+                    .collect(Collectors.toList()),
+                bottom.getCloImageUrl()
             ));
         }
     }
@@ -193,12 +191,13 @@ public class RecoService {
                     layer.getClo_lib(),
                     layer.getTags().stream()
                         .map(tag -> new TagDTO(tag.getTag_id(), tag.getTag_lib()))
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                    layer.getCloImageUrl()
                 ))
                 .collect(Collectors.toList());
 
             // Afficher les couches supérieures recommandées
-            layerRecommendations.forEach(layer -> System.out.println("Couche supérieure ajoutée : " + layer.getName()));
+            layerRecommendations.forEach(layer -> System.out.println("Couche supérieure ajoutée : " + layer.getCloLib()));
             return layerRecommendations;
         }
     }
