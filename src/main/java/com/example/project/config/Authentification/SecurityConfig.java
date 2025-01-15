@@ -46,7 +46,7 @@ public class SecurityConfig {
             // Gestion des autorisations
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers( "/api/auth/**", "/api/weather/**").permitAll()
-                .requestMatchers("/api/profile/**","/api/clothing/**", "/api/tags/**", "/api/outfits/**").authenticated() // Les endpoints profile nécessitent une authentification
+                .requestMatchers("/api/profile/**","/api/clothing/**", "/api/tags/**", "/api/outfits/**", "/api/reco/**").authenticated()
                 .anyRequest().authenticated()
             )
     

@@ -19,6 +19,11 @@ public class OutfitDisplay {
         this.cloImageUrlList = cloImageUrlList;
     }
 
+    public OutfitDisplay(String name, List<String> cloImageUrlList) {
+        this.name = name;
+        this.cloImageUrlList = cloImageUrlList;
+    }
+
     public OutfitDisplay() {
     }
 
